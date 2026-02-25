@@ -72,7 +72,7 @@ router.get('/questions/:id', (req: Request, res: Response) => {
  * GET /api/domains
  * Get list of all available domains
  */
-router.get('/domains', (req: Request, res: Response) => {
+router.get('/domains', (_req: Request, res: Response) => {
   try {
     const domains = getAllDomains();
 
@@ -93,7 +93,7 @@ router.get('/domains', (req: Request, res: Response) => {
  * GET /api/cache-status
  * Check if OpenSAT data is cached and available
  */
-router.get('/cache-status', (req: Request, res: Response) => {
+router.get('/cache-status', (_req: Request, res: Response) => {
   try {
     const status = getCacheStatus();
 
