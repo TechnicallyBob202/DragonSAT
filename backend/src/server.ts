@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -38,7 +38,7 @@ async function startServer() {
     app.use('/api/progress', createProgressRouter(db));
 
     // 404 handler
-    app.use((req, res) => {
+    app.use((_req, res) => {
       res.status(404).json({
         success: false,
         error: 'Not found',
@@ -49,9 +49,9 @@ async function startServer() {
     app.use(
       (
         err: Error,
-        req: express.Request,
+        _req: express.Request,
         res: express.Response,
-        next: express.NextFunction
+        _next: express.NextFunction
       ) => {
         console.error('Server error:', err);
         res.status(500).json({
