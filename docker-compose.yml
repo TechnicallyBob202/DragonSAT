@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hapasat-backend
+    ports:
+      - '3001:3001'
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_PATH: /app/data/hapasat.db
+      OPENSAT_API_URL: https://api.jsonsilo.com/public/942c3c3b-3a0c-4be3-81c2-12029def19f5
+      FRONTEND_URL: http://localhost:3000
+    volumes:
+      - ./data:/app/data
+    command: node backend/dist/server.js
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hapasat-frontend
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_APP_NAME: HapaSAT
+    depends_on:
+      - backend
+
+volumes:
+  data:

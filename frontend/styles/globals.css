@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KaTeX styling */
+.katex-display {
+  @apply my-4;
+}
+
+.katex {
+  @apply font-serif;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors;
+  }
+
+  .btn-disabled {
+    @apply px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+
+  .card-hover {
+    @apply bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer;
+  }
+}
+
+/* Markdown styling */
+.markdown h1 {
+  @apply text-2xl font-bold mb-4;
+}
+
+.markdown h2 {
+  @apply text-xl font-semibold mb-3;
+}
+
+.markdown p {
+  @apply mb-2 leading-relaxed;
+}
+
+.markdown ul,
+.markdown ol {
+  @apply mb-4 ml-6;
+}
+
+.markdown li {
+  @apply mb-1;
+}
+
+/* Timer styling */
+.timer {
+  @apply text-2xl font-mono font-bold;
+}
+
+.timer.warning {
+  @apply text-red-600;
+}
+
+.timer.expired {
+  @apply text-red-700 animate-pulse;
+}
+
+/* Option group styling */
+.option-button {
+  @apply w-full text-left p-4 border-2 rounded-lg transition-all hover:border-blue-500;
+}
+
+.option-button.selected {
+  @apply border-blue-600 bg-blue-50;
+}
+
+.option-button.correct {
+  @apply border-green-500 bg-green-50;
+}
+
+.option-button.incorrect {
+  @apply border-red-500 bg-red-50;
+}
