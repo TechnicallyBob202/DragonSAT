@@ -67,6 +67,9 @@ export function AssessmentEngine() {
     setIsInitializing(true);
 
     try {
+      // Initialize session with the selected mode
+      assessmentStore.initializeSession(assessmentStore.userId, currentMode);
+
       // Start backend session
       const sessionData = await startSession(
         assessmentStore.userId,
