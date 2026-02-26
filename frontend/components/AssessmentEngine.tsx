@@ -20,6 +20,13 @@ import { ResultsDisplay } from './ResultsDisplay';
 
 export type AssessmentMode = 'study' | 'quiz' | 'test' | null;
 
+const modeTitles: Record<string, string> = {
+  study: 'Study Mode',
+  quiz: 'Quiz Mode',
+  test: 'Test Mode',
+  results: 'Results',
+};
+
 export function AssessmentEngine() {
   const assessmentStore = useAssessmentStore();
   const progressStore = useProgressStore();
@@ -126,41 +133,72 @@ export function AssessmentEngine() {
     assessmentStore.resetAssessment();
   };
 
+  const handleSessionExit = () => {
+    const mode = assessmentStore.activeMode;
+    if (mode === 'quiz' || mode === 'test') {
+      if (!window.confirm('Exit? Your progress will be lost.')) return;
+    }
+    handleBackToDashboard();
+  };
+
+  const renderModal = (title: string, content: React.ReactNode) => (
+    <>
+      <Dashboard onSelectMode={handleSelectMode} />
+      <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 shrink-0">
+            <span className="font-semibold text-gray-700">{title}</span>
+            <button
+              onClick={handleSessionExit}
+              className="text-gray-400 hover:text-gray-700 text-2xl leading-none"
+              aria-label="Exit to menu"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex flex-col flex-1 overflow-hidden">
+            {content}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
   // Show results screen
   if (showResults && sessionResults) {
-    return (
+    return renderModal('Results', (
       <ResultsDisplay
         score={sessionResults.score}
         total={sessionResults.total}
         correct={sessionResults.correct}
         onBackToDashboard={handleBackToDashboard}
       />
-    );
+    ));
   }
 
   // Show active session
   if (assessmentStore.activeMode === 'study' && assessmentStore.questions.length > 0) {
-    return (
+    return renderModal('Study Mode', (
       <StudySession onExit={handleBackToDashboard} />
-    );
+    ));
   }
 
   if (assessmentStore.activeMode === 'quiz' && assessmentStore.questions.length > 0) {
-    return (
+    return renderModal('Quiz Mode', (
       <QuizSession
         onComplete={handleCompleteSession}
         onExit={handleBackToDashboard}
       />
-    );
+    ));
   }
 
   if (assessmentStore.activeMode === 'test' && assessmentStore.questions.length > 0) {
-    return (
+    return renderModal('Test Mode', (
       <TestSession
         onComplete={handleCompleteSession}
         onExit={handleBackToDashboard}
       />
-    );
+    ));
   }
 
   // Show setup overlay

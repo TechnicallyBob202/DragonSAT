@@ -30,8 +30,8 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   if (!sessionStarted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="card max-w-md">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Study Mode</h2>
           <p className="text-gray-600 mb-6">
             Learn at your own pace with immediate feedback on your answers.
@@ -54,8 +54,8 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   if (!currentQuestion) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="card max-w-md text-center">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Study Complete!</h2>
           <p className="text-gray-600 mb-6">You've reviewed all available questions.</p>
           {onExit && (
@@ -102,8 +102,8 @@ export function StudySession({ onExit }: StudySessionProps) {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <div className="flex-1 max-w-4xl mx-auto w-full p-6">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} showExplanation={showExplanation} />
 
         <div className="mt-8 space-y-4">
@@ -126,7 +126,6 @@ export function StudySession({ onExit }: StudySessionProps) {
         onCheckAnswer={!showExplanation ? handleCheckAnswer : undefined}
         onNext={showExplanation ? handleNext : undefined}
         onPrevious={handlePrevious}
-        onExit={onExit}
         canCheckAnswer={!!selectedAnswer && !showExplanation}
         canNext={currentQuestionIndex < questions.length - 1}
         canPrevious={currentQuestionIndex > 0}

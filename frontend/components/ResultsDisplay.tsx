@@ -35,7 +35,7 @@ export function ResultsDisplay({
   }[grade];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="flex-1 overflow-y-auto flex items-center justify-center p-6">
       <div className="card max-w-lg w-full text-center">
         {/* Grade */}
         <div

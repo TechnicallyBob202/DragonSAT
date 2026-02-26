@@ -80,17 +80,10 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
     }
   };
 
-  const handleExit = () => {
-    if (window.confirm('Exit the test? Your progress will be lost.')) {
-      pause();
-      onExit?.();
-    }
-  };
-
   if (!sessionStarted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="card max-w-md">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Test Mode</h2>
           <p className="text-gray-600 mb-2">
             Full SAT simulation - {Math.ceil(testTime / 60)} minutes for {questions.length} questions
@@ -122,8 +115,8 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   if (reviewMode) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="card max-w-md text-center">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Test Complete!</h2>
           <p className="text-gray-600 mb-6">Review your answers or submit for scoring.</p>
           <button
@@ -139,8 +132,8 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   if (!currentQuestion || isTimeExpired(timeRemaining)) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="card max-w-md text-center">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Time's Up!</h2>
           <p className="text-gray-600 mb-6">Your test has been submitted automatically.</p>
         </div>
@@ -156,8 +149,8 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <div className="flex-1 max-w-4xl mx-auto w-full p-6">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} />
 
         <div className="mt-8 space-y-4">
@@ -177,7 +170,6 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
         currentQuestion={progress.current}
         totalQuestions={progress.total}
         onNext={handleNext}
-        onExit={onExit ? handleExit : undefined}
         canNext={true}
       />
     </div>
