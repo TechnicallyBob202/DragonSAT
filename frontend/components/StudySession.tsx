@@ -126,6 +126,7 @@ export function StudySession({ onExit }: StudySessionProps) {
         onCheckAnswer={!showExplanation ? handleCheckAnswer : undefined}
         onNext={showExplanation ? handleNext : undefined}
         onPrevious={handlePrevious}
+        onExit={onExit}
         canCheckAnswer={!!selectedAnswer && !showExplanation}
         canNext={currentQuestionIndex < questions.length - 1}
         canPrevious={currentQuestionIndex > 0}

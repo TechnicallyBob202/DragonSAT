@@ -80,6 +80,13 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
     }
   };
 
+  const handleExit = () => {
+    if (window.confirm('Exit the test? Your progress will be lost.')) {
+      pause();
+      onExit?.();
+    }
+  };
+
   if (!sessionStarted) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -170,6 +177,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
         currentQuestion={progress.current}
         totalQuestions={progress.total}
         onNext={handleNext}
+        onExit={onExit ? handleExit : undefined}
         canNext={true}
       />
     </div>

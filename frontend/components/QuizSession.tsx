@@ -75,6 +75,13 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
     }
   };
 
+  const handleExit = () => {
+    if (window.confirm('Exit the quiz? Your progress will be lost.')) {
+      pause();
+      onExit?.();
+    }
+  };
+
   if (!sessionStarted) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -145,6 +152,7 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
         currentQuestion={progress.current}
         totalQuestions={progress.total}
         onNext={handleNext}
+        onExit={onExit ? handleExit : undefined}
         canNext={!!selectedAnswer}
       />
     </div>
