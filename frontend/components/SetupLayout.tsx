@@ -5,12 +5,36 @@ import { Dashboard } from './Dashboard';
 import { HistoryView } from './HistoryView';
 import { SettingsView } from './SettingsView';
 import { SessionModal } from './SessionModal';
+import { useProgressStore } from '../hooks/useProgressStore';
+import { getOrCreateUser, getUserProgress } from '../utils/api';
 
 type NavSection = 'dashboard' | 'history' | 'settings';
 
 export function SetupLayout() {
   const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
   const [sessionInProgress, setSessionInProgress] = useState(false);
+  const { setUserId, setSessions, setUserStats } = useProgressStore();
+
+  // Initialize userId + stats from backend so History/Settings work in setup app
+  useEffect(() => {
+    const initUser = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      try {
+        const userData = await getOrCreateUser(userId);
+        const canonicalId = userData.user.id as string;
+        setUserId(canonicalId);
+        const progress = await getUserProgress(canonicalId, 20);
+        if (progress.success) {
+          setSessions(progress.sessions);
+          setUserStats(progress.stats);
+        }
+      } catch {
+        // backend unreachable; ignore
+      }
+    };
+    initUser();
+  }, []);
 
   // Listen for session window messages
   useEffect(() => {

@@ -24,13 +24,14 @@ export function StudySession({ onExit }: StudySessionProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
 
   const currentQuestion = getCurrentQuestion();
   const progress = getProgress();
 
   if (!sessionStarted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Study Mode</h2>
           <p className="text-gray-600 mb-6">
@@ -52,9 +53,9 @@ export function StudySession({ onExit }: StudySessionProps) {
     );
   }
 
-  if (!currentQuestion) {
+  if (sessionComplete || !currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Study Complete!</h2>
           <p className="text-gray-600 mb-6">You've reviewed all available questions.</p>
@@ -83,7 +84,11 @@ export function StudySession({ onExit }: StudySessionProps) {
   const handleNext = () => {
     setSelectedAnswer(null);
     setShowExplanation(false);
-    moveToNextQuestion();
+    if (currentQuestionIndex >= questions.length - 1) {
+      setSessionComplete(true);
+    } else {
+      moveToNextQuestion();
+    }
   };
 
   const handlePrevious = () => {
@@ -102,7 +107,7 @@ export function StudySession({ onExit }: StudySessionProps) {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
       <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} showExplanation={showExplanation} />
 
@@ -127,7 +132,7 @@ export function StudySession({ onExit }: StudySessionProps) {
         onNext={showExplanation ? handleNext : undefined}
         onPrevious={handlePrevious}
         canCheckAnswer={!!selectedAnswer && !showExplanation}
-        canNext={currentQuestionIndex < questions.length - 1}
+        canNext={showExplanation}
         canPrevious={currentQuestionIndex > 0}
       />
     </div>

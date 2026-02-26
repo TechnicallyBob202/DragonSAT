@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAssessmentStore } from '@/hooks/useAssessmentStore';
 import { useProgressStore } from '@/hooks/useProgressStore';
 import { getOrCreateUser, startSession, endSession, getQuestions } from '@/utils/api';
@@ -20,6 +20,7 @@ interface SessionConfig {
 export default function SessionPage() {
   const assessmentStore = useAssessmentStore();
   const progressStore = useProgressStore();
+  const sessionEndedRef = useRef(false);
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [showResults, setShowResults] = useState(false);
@@ -28,6 +29,15 @@ export default function SessionPage() {
     total: number;
     correct: number;
   } | null>(null);
+
+  // Notify parent whenever this window unloads (force-close, navigate away, etc.)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.opener?.postMessage({ type: 'SESSION_ENDED' }, '*');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   useEffect(() => {
     const initializeSession = async (config: SessionConfig) => {
@@ -86,11 +96,13 @@ export default function SessionPage() {
     }
   }, []);
 
+  // Called by quiz/test when the session finishes with a score
   const handleCompleteSession = async (score: number, total: number, correct: number) => {
     if (!assessmentStore.sessionId) return;
 
     try {
       await endSession(assessmentStore.sessionId, score, total, correct);
+      sessionEndedRef.current = true;
       setSessionResults({ score, total, correct });
       setShowResults(true);
     } catch (error) {
@@ -98,7 +110,20 @@ export default function SessionPage() {
     }
   };
 
-  const handleExit = () => {
+  // Called when user exits (study complete, Back to Dashboard, results close)
+  const handleExit = async () => {
+    // End backend session if not already ended (study mode, early exit)
+    if (!sessionEndedRef.current && assessmentStore.sessionId) {
+      try {
+        const correct = assessmentStore.getCorrectCount();
+        const total = assessmentStore.questions.length;
+        const score = total > 0 ? (correct / total) * 100 : 0;
+        await endSession(assessmentStore.sessionId, score, total, correct);
+        sessionEndedRef.current = true;
+      } catch {
+        // best-effort; don't block the window from closing
+      }
+    }
     window.opener?.postMessage({ type: 'SESSION_ENDED' }, '*');
     assessmentStore.resetAssessment();
     window.close();

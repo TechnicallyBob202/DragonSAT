@@ -83,7 +83,7 @@ export function ControlBar({
                   disabled={!canNext}
                   className="btn-primary disabled:opacity-50"
                 >
-                  Next
+                  {currentQuestion === totalQuestions ? 'Finish' : 'Next'}
                 </button>
               )}
             </>
