@@ -45,9 +45,11 @@ export function AssessmentEngine() {
           localStorage.setItem('userId', userId);
         }
 
+        // Set userId immediately so Start works before the backend responds
+        assessmentStore.initializeSession(userId, null);
+
         const userData = await getOrCreateUser(userId);
         progressStore.setUserId(userData.user.id);
-        assessmentStore.initializeSession(userData.user.id, null);
       } catch (error) {
         console.error('Failed to initialize user:', error);
       }
