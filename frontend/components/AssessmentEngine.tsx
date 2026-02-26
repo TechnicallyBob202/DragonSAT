@@ -156,7 +156,7 @@ export function AssessmentEngine() {
               ✕
             </button>
           </div>
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col flex-1 overflow-hidden min-h-0">
             {content}
           </div>
         </div>

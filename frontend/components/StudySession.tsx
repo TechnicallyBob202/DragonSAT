@@ -103,7 +103,7 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full p-6">
+      <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} showExplanation={showExplanation} />
 
         <div className="mt-8 space-y-4">

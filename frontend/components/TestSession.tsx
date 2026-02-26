@@ -150,7 +150,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full p-6">
+      <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} />
 
         <div className="mt-8 space-y-4">
