@@ -46,8 +46,8 @@ export function parseQuestion(data: any): ParsedQuestion {
       C: normalizeLatex(data.question?.choices?.C || ''),
       D: normalizeLatex(data.question?.choices?.D || ''),
     },
-    correct_answer: data.question?.correct_answer || 'A',
-    explanation: normalizeLatex(data.question?.explanation || ''),
+    correct_answer: data.correct_answer || data.question?.correct_answer || 'A',
+    explanation: normalizeLatex(data.explanation || data.question?.explanation || ''),
   };
 }
 

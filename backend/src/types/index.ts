@@ -2,6 +2,8 @@ export interface OpenSATQuestion {
   id: string;
   domain: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  correct_answer: 'A' | 'B' | 'C' | 'D';
+  explanation: string;
   question: {
     paragraph?: string;
     question: string;
@@ -11,8 +13,10 @@ export interface OpenSATQuestion {
       C: string;
       D: string;
     };
-    correct_answer: 'A' | 'B' | 'C' | 'D';
-    explanation: string;
+  };
+  visuals?: {
+    type: string;
+    svg_content: string;
   };
 }
 

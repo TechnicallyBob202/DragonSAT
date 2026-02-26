@@ -15,8 +15,8 @@ export async function loadOpenSATData(): Promise<void> {
 
   try {
     console.log('Fetching OpenSAT data...');
-    const response = await axios.get<OpenSATQuestion[]>(OPENSAT_URL);
-    cachedQuestions = response.data;
+    const response = await axios.get<{ math: OpenSATQuestion[] }>(OPENSAT_URL);
+    cachedQuestions = response.data.math;
     isCached = true;
     console.log(`Loaded ${cachedQuestions.length} questions from OpenSAT`);
   } catch (error) {
