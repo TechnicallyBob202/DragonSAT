@@ -1,7 +1,7 @@
 'use client';
 
-import { AssessmentEngine } from '@/components/AssessmentEngine';
+import { SetupLayout } from '@/components/SetupLayout';
 
 export default function Home() {
-  return <AssessmentEngine />;
+  return <SetupLayout />;
 }

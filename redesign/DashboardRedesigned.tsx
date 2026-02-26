@@ -37,7 +37,7 @@ const MODES: ModeCard[] = [
 ];
 
 export function Dashboard() {
-  const { userStats } = useProgressStore();
+  const { userStats, recentSessions } = useProgressStore();
   const [showSetup, setShowSetup] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'study' | 'quiz' | 'test' | null>(null);
 
@@ -46,24 +46,42 @@ export function Dashboard() {
     setShowSetup(true);
   };
 
-  const handleStartSession = (config: SetupConfig) => {
+  const handleStartSession = async (config: SetupConfig) => {
     if (!selectedMode) return;
 
-    const params = new URLSearchParams({
+    // This will be handled by AssessmentEngine-equivalent
+    // For now, just notify parent to open session window
+    const sessionConfig = {
       mode: selectedMode,
-      questionCount: config.questionCount.toString(),
-      ...(config.domain && { domain: config.domain }),
-      ...(config.difficulty && { difficulty: config.difficulty }),
-    });
+      questionCount: config.questionCount,
+      domain: config.domain,
+      difficulty: config.difficulty,
+    };
 
-    window.open(
-      `/session?${params.toString()}`,
+    // Store config in sessionStorage for session window to pick up
+    sessionStorage.setItem('pendingSessionConfig', JSON.stringify(sessionConfig));
+
+    // Open session window
+    const sessionWindow = window.open(
+      '/session',
       'hapasat-session',
-      'width=1200,height=800,menubar=no,toolbar=no,location=no'
+      'width=1200,height=800'
     );
 
+    if (sessionWindow) {
+      // Send config to new window
+      const checkReady = setInterval(() => {
+        if (!sessionWindow.closed) {
+          sessionWindow.postMessage(
+            { type: 'INIT_SESSION', config: sessionConfig },
+            '*'
+          );
+          clearInterval(checkReady);
+        }
+      }, 100);
+    }
+
     setShowSetup(false);
-    setSelectedMode(null);
   };
 
   return (
@@ -80,7 +98,7 @@ export function Dashboard() {
           <button
             key={modeCard.mode}
             onClick={() => handleSelectMode(modeCard.mode)}
-            className="group relative overflow-hidden rounded-xl p-6 text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 active:translate-y-0"
+            className={`group relative overflow-hidden rounded-xl p-6 text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 active:translate-y-0`}
           >
             {/* Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${modeCard.gradient}`}></div>
@@ -89,11 +107,13 @@ export function Dashboard() {
             <div className="relative z-10">
               <div className="text-4xl mb-3">{modeCard.icon}</div>
               <h3 className="text-xl font-bold text-left mb-2">{modeCard.title}</h3>
-              <p className="text-sm text-white/90 text-left">{modeCard.description}</p>
+              <p className="text-sm text-white text-opacity-90 text-left">
+                {modeCard.description}
+              </p>
             </div>
 
-            {/* Hover Arrow */}
-            <div className="absolute bottom-3 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity text-lg">
+            {/* Hover Indicator */}
+            <div className="absolute bottom-2 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
               →
             </div>
           </button>
@@ -138,7 +158,7 @@ export function Dashboard() {
       {showSetup && selectedMode && (
         <SetupOverlay
           mode={selectedMode}
-          domains={[]}
+          domains={[]} // Will fetch these
           onStart={handleStartSession}
           onCancel={() => {
             setShowSetup(false);

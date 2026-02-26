@@ -77,7 +77,7 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
 
   if (!sessionStarted) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Quiz Mode</h2>
           <p className="text-gray-600 mb-2">
@@ -107,7 +107,7 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
 
   if (!currentQuestion) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Quiz Complete!</h2>
           <p className="text-gray-600 mb-6">Check your results on the next screen.</p>
@@ -124,7 +124,7 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
   ];
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} />
 
