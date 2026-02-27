@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { useSettingsStore, type Theme, type FontSize } from '../hooks/useSettingsStore';
-import { changePassword, getMe, linkGoogle } from '../utils/api';
+import { changePassword, getMe, linkGoogle, updateProfile } from '../utils/api';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -92,6 +92,7 @@ export function SettingsView() {
         {/* Account */}
         <SettingSection title="Account">
           <div className="space-y-4">
+            <UpdateNameForm />
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">User ID</p>
@@ -222,6 +223,63 @@ function ToggleSetting({ label, description, value, onChange }: ToggleSettingPro
         <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${value ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
+  );
+}
+
+// ─── Update Display Name ──────────────────────────────────────────────────────
+
+function UpdateNameForm() {
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    getMe()
+      .then((data) => { setName(data.user.name || ''); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
+    setSaving(true);
+    try {
+      await updateProfile(name);
+      localStorage.setItem('name', name);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Failed to update name');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      {error && <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg px-3 py-2 text-sm text-red-700 dark:text-red-300">{error}</div>}
+      {success && <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg px-3 py-2 text-sm text-green-700 dark:text-green-300">Display name updated.</div>}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            autoComplete="name"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button type="submit" disabled={saving} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition-colors">
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
 

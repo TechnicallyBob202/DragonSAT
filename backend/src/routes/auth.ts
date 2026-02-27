@@ -7,7 +7,7 @@ import axios from 'axios';
 import { getAsync, runAsync } from '../db/init';
 import { requireAuth, AuthRequest, JWT_SECRET } from '../middleware/auth';
 
-const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function getGoogleUserInfo(accessToken: string): Promise<{ sub: string; email?: string; name?: string }> {
   const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -16,15 +16,24 @@ async function getGoogleUserInfo(accessToken: string): Promise<{ sub: string; em
   return res.data;
 }
 
+function deriveUsername(email: string, id: string): string {
+  const base = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 17);
+  return base.length >= 3 ? base : `user_${base}`;
+}
+
 export function createAuthRouter(db: sqlite3.Database): Router {
   const router = Router();
 
   // POST /api/auth/register
   router.post('/register', async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!username || !USERNAME_RE.test(username)) {
-      res.status(400).json({ error: 'Username must be 3–20 alphanumeric characters or underscores' });
+    if (!name || name.trim().length < 1) {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+    if (!email || !EMAIL_RE.test(email)) {
+      res.status(400).json({ error: 'A valid email address is required' });
       return;
     }
     if (!password || password.length < 6) {
@@ -33,57 +42,69 @@ export function createAuthRouter(db: sqlite3.Database): Router {
     }
 
     try {
-      const existing = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
+      const existing = await getAsync(db, 'SELECT id FROM users WHERE email = ?', [email.toLowerCase()]);
       if (existing) {
-        res.status(409).json({ error: 'Username already taken' });
+        res.status(409).json({ error: 'An account with that email already exists' });
         return;
       }
 
       const id = randomUUID();
+      let username = deriveUsername(email, id);
+      const taken = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
+      if (taken) username = `${username.slice(0, 14)}_${id.slice(0, 3)}`;
+
       const password_hash = await bcrypt.hash(password, 10);
       await runAsync(
         db,
-        'INSERT INTO users (id, name, username, password_hash) VALUES (?, ?, ?, ?)',
-        [id, username, username, password_hash]
+        'INSERT INTO users (id, name, username, email, password_hash) VALUES (?, ?, ?, ?, ?)',
+        [id, name.trim(), username, email.toLowerCase(), password_hash]
       );
 
       const token = jwt.sign({ userId: id }, JWT_SECRET, { expiresIn: '7d' });
-      res.json({ success: true, token, user: { id, username, name: username } });
+      res.json({ success: true, token, user: { id, username, name: name.trim(), email: email.toLowerCase() } });
     } catch (err) {
       console.error('Register error:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
 
-  // POST /api/auth/login
+  // POST /api/auth/login  (accepts email; falls back to username for legacy accounts)
   router.post('/login', async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-      res.status(400).json({ error: 'Username and password are required' });
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
       return;
     }
 
     try {
-      const user = await getAsync(
+      // Try email first, then username (legacy accounts created before email was required)
+      let user = await getAsync(
         db,
-        'SELECT id, name, username, password_hash FROM users WHERE username = ?',
-        [username]
+        'SELECT id, name, username, email, password_hash FROM users WHERE email = ?',
+        [email.toLowerCase()]
       );
+      if (!user) {
+        user = await getAsync(
+          db,
+          'SELECT id, name, username, email, password_hash FROM users WHERE username = ?',
+          [email]
+        );
+      }
 
       if (!user || !user.password_hash) {
-        res.status(401).json({ error: 'Invalid username or password' });
+        res.status(401).json({ error: 'Invalid email or password' });
         return;
       }
 
       const valid = await bcrypt.compare(password, user.password_hash);
       if (!valid) {
-        res.status(401).json({ error: 'Invalid username or password' });
+        res.status(401).json({ error: 'Invalid email or password' });
         return;
       }
 
       const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-      res.json({ success: true, token, user: { id: user.id, username: user.username, name: user.name } });
+      res.json({ success: true, token, user: { id: user.id, username: user.username, name: user.name, email: user.email ?? null } });
     } catch (err) {
       console.error('Login error:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -102,40 +123,33 @@ export function createAuthRouter(db: sqlite3.Database): Router {
       const { sub: googleId, email, name } = await getGoogleUserInfo(accessToken);
 
       // Find by google_id first
-      let user = await getAsync(db, 'SELECT id, username, name FROM users WHERE google_id = ?', [googleId]);
+      let user = await getAsync(db, 'SELECT id, username, name, email FROM users WHERE google_id = ?', [googleId]);
 
       if (!user && email) {
         // Link to existing account that has the same email
-        user = await getAsync(db, 'SELECT id, username, name FROM users WHERE email = ?', [email]);
+        user = await getAsync(db, 'SELECT id, username, name, email FROM users WHERE email = ?', [email.toLowerCase()]);
         if (user) {
           await runAsync(db, 'UPDATE users SET google_id = ? WHERE id = ?', [googleId, user.id]);
         }
       }
 
       if (!user) {
-        // Create a new user; derive a username from the email prefix
+        // Create a new user
         const id = randomUUID();
-        const base = (email?.split('@')[0] ?? name ?? 'user')
-          .replace(/[^a-zA-Z0-9_]/g, '_')
-          .slice(0, 17);
-        let username = base.length >= 3 ? base : `user_${base}`;
-
-        // Handle username collisions with a short suffix
+        let username = deriveUsername(email ?? name ?? 'user', id);
         const taken = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
-        if (taken) {
-          username = `${username}_${id.slice(0, 5)}`;
-        }
+        if (taken) username = `${username.slice(0, 14)}_${id.slice(0, 3)}`;
 
         await runAsync(
           db,
           'INSERT INTO users (id, name, username, email, google_id) VALUES (?, ?, ?, ?, ?)',
-          [id, name ?? username, username, email ?? null, googleId]
+          [id, name ?? username, username, email ? email.toLowerCase() : null, googleId]
         );
-        user = { id, username, name: name ?? username };
+        user = { id, username, name: name ?? username, email: email ? email.toLowerCase() : null };
       }
 
       const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-      res.json({ success: true, token, user: { id: user.id, username: user.username, name: user.name } });
+      res.json({ success: true, token, user: { id: user.id, username: user.username, name: user.name, email: user.email ?? null } });
     } catch (err) {
       console.error('Google auth error:', err);
       res.status(401).json({ error: 'Google authentication failed' });
@@ -147,16 +161,32 @@ export function createAuthRouter(db: sqlite3.Database): Router {
     try {
       const user = await getAsync(
         db,
-        'SELECT id, username, email, google_id FROM users WHERE id = ?',
+        'SELECT id, name, username, email, google_id FROM users WHERE id = ?',
         [req.userId]
       );
       if (!user) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
-      res.json({ success: true, user: { id: user.id, username: user.username, email: user.email ?? null, googleLinked: !!user.google_id } });
+      res.json({ success: true, user: { id: user.id, name: user.name, username: user.username, email: user.email ?? null, googleLinked: !!user.google_id } });
     } catch (err) {
       console.error('GET /me error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // PATCH /api/auth/profile  (authenticated) — update display name
+  router.patch('/profile', requireAuth, async (req: AuthRequest, res: Response) => {
+    const { name } = req.body;
+    if (!name || name.trim().length < 1) {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+    try {
+      await runAsync(db, 'UPDATE users SET name = ? WHERE id = ?', [name.trim(), req.userId]);
+      res.json({ success: true, name: name.trim() });
+    } catch (err) {
+      console.error('Update profile error:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -182,10 +212,10 @@ export function createAuthRouter(db: sqlite3.Database): Router {
       await runAsync(
         db,
         'UPDATE users SET google_id = ?, email = COALESCE(email, ?) WHERE id = ?',
-        [googleId, email ?? null, req.userId]
+        [googleId, email ? email.toLowerCase() : null, req.userId]
       );
 
-      res.json({ success: true, googleLinked: true, email: email ?? null });
+      res.json({ success: true, googleLinked: true, email: email ? email.toLowerCase() : null });
     } catch (err) {
       console.error('Link-google error:', err);
       res.status(500).json({ error: 'Google linking failed' });

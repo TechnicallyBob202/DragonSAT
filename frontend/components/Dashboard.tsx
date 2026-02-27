@@ -40,10 +40,10 @@ export function Dashboard() {
   const { userStats } = useProgressStore();
   const [showSetup, setShowSetup] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'study' | 'quiz' | 'test' | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsername(localStorage.getItem('username'));
+    setDisplayName(localStorage.getItem('name') || localStorage.getItem('username'));
   }, []);
 
   const handleSelectMode = (mode: 'study' | 'quiz' | 'test') => {
@@ -77,7 +77,7 @@ export function Dashboard() {
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-1">
-          Welcome back{username ? `, ${username}` : ''}!
+          Welcome back{displayName ? `, ${displayName}` : ''}!
         </h2>
         <p className="text-gray-500 dark:text-gray-400 font-semibold">Select a mode to begin practicing for the SAT</p>
       </div>

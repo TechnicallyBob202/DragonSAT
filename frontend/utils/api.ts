@@ -26,8 +26,8 @@ export interface QuestionFilterParams {
 }
 
 // Auth endpoints
-export async function login(username: string, password: string) {
-  const response = await apiClient.post('/auth/login', { username, password });
+export async function login(email: string, password: string) {
+  const response = await apiClient.post('/auth/login', { email, password });
   return response.data;
 }
 
@@ -46,8 +46,13 @@ export async function linkGoogle(accessToken: string) {
   return response.data;
 }
 
-export async function register(username: string, password: string) {
-  const response = await apiClient.post('/auth/register', { username, password });
+export async function register(name: string, email: string, password: string) {
+  const response = await apiClient.post('/auth/register', { name, email, password });
+  return response.data;
+}
+
+export async function updateProfile(name: string) {
+  const response = await apiClient.patch('/auth/profile', { name });
   return response.data;
 }
 

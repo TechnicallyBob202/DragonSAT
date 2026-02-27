@@ -14,7 +14,8 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [tab, setTab] = useState<Tab>('signin');
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +26,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('userId', data.user.id);
       localStorage.setItem('username', data.user.username);
+      localStorage.setItem('name', data.user.name || data.user.username);
       onLogin();
     } else {
       setError(data.error || 'Something went wrong');
@@ -43,8 +45,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true);
     try {
       const data = tab === 'signin'
-        ? await login(username, password)
-        : await register(username, password);
+        ? await login(email, password)
+        : await register(name, email, password);
       handleAuthSuccess(data);
     } catch (err: any) {
       setError(err?.response?.data?.error || 'Unable to connect. Please try again.');
@@ -56,7 +58,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const switchTab = (t: Tab) => {
     setTab(t);
     setError('');
-    setUsername('');
+    setName('');
+    setEmail('');
     setPassword('');
     setConfirmPassword('');
   };
@@ -102,17 +105,34 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             </div>
           )}
 
+          {tab === 'register' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Smith"
+                required
+                autoComplete="name"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+              Email Address
             </label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="your_username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               required
-              autoComplete="username"
+              autoComplete="email"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -180,7 +200,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
         {tab === 'register' && (
           <p className="px-8 pb-6 text-xs text-gray-500 text-center">
-            Username must be 3–20 characters (letters, numbers, underscores).
             Password must be at least 6 characters.
           </p>
         )}

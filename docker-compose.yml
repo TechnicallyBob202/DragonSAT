@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Baked into the Next.js bundle at build time
-        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ""
+        # Baked into the Next.js bundle at build time — must also be set as a runtime env var below
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: "${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}"
     container_name: hapasat
     ports:
       - '3000:3000'
@@ -15,13 +15,14 @@ services:
       NODE_ENV: production
       PORT: 3001
       DATABASE_PATH: /app/data/hapasat.db
-      OPENSAT_API_URL: https://pinesat.com/api/questions
+      OPENSAT_API_URL: "${OPENSAT_API_URL:-https://pinesat.com/api/questions}"
       BACKEND_URL: http://localhost:3001/api
-      FRONTEND_URL: http://localhost:3000
-      JWT_SECRET: change-me-in-production
-      # Google OAuth (optional — set both to enable Google Sign-In)
-      GOOGLE_CLIENT_ID: ""
-      GOOGLE_CLIENT_SECRET: ""
+      FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
+      JWT_SECRET: "${JWT_SECRET:-change-me-in-production}"
+      # Google OAuth (optional — set all three to enable Google Sign-In)
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: "${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}"
     volumes:
       - ./data:/app/data
 
