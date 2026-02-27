@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Baked into the Next.js bundle at build time
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ""
     container_name: hapasat
     ports:
       - '3000:3000'
