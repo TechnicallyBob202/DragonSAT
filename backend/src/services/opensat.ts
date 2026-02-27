@@ -7,6 +7,19 @@ let isCached = false;
 const OPENSAT_URL = process.env.OPENSAT_API_URL ||
   'https://pinesat.com/api/questions';
 
+/** Handle both bare-array and wrapped-object response shapes from the API */
+function extractArray(data: any, section: string): OpenSATQuestion[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.[section])) return data[section];
+  if (Array.isArray(data?.questions)) return data.questions;
+  // Last resort: collect any top-level array value
+  for (const val of Object.values(data ?? {})) {
+    if (Array.isArray(val)) return val as OpenSATQuestion[];
+  }
+  console.warn(`Could not extract ${section} array from response:`, JSON.stringify(data).slice(0, 200));
+  return [];
+}
+
 export async function loadOpenSATData(): Promise<void> {
   if (isCached && cachedQuestions.length > 0) {
     console.log(`Using cached OpenSAT data (${cachedQuestions.length} questions)`);
@@ -16,12 +29,15 @@ export async function loadOpenSATData(): Promise<void> {
   try {
     console.log('Fetching OpenSAT data from pinesat.com...');
     const [mathRes, englishRes] = await Promise.all([
-      axios.get<OpenSATQuestion[]>(`${OPENSAT_URL}?section=math`),
-      axios.get<OpenSATQuestion[]>(`${OPENSAT_URL}?section=english`),
+      axios.get(`${OPENSAT_URL}?section=math`),
+      axios.get(`${OPENSAT_URL}?section=english`),
     ]);
 
-    const mathQs: FilteredQuestion[] = mathRes.data.map(q => ({ ...q, section: 'math' }));
-    const englishQs: FilteredQuestion[] = englishRes.data.map(q => ({ ...q, section: 'english' }));
+    const mathArray = extractArray(mathRes.data, 'math');
+    const englishArray = extractArray(englishRes.data, 'english');
+
+    const mathQs: FilteredQuestion[] = mathArray.map((q: OpenSATQuestion) => ({ ...q, section: 'math' }));
+    const englishQs: FilteredQuestion[] = englishArray.map((q: OpenSATQuestion) => ({ ...q, section: 'english' }));
     cachedQuestions = [...mathQs, ...englishQs];
 
     isCached = true;
