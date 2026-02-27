@@ -14,6 +14,8 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend ./
+ARG NEXT_PUBLIC_API_URL=/api/proxy
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production stage
@@ -33,8 +35,14 @@ COPY --from=frontend-builder /app/frontend/public ./frontend/public
 COPY --from=frontend-builder /app/frontend/package*.json ./frontend/
 RUN cd frontend && npm ci --only=production
 
-# Expose ports
-EXPOSE 3000 3001
+# Startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-# Default to backend
-CMD ["node", "backend/dist/server.js"]
+# Runtime env — BACKEND_URL is server-side only (no NEXT_PUBLIC_)
+ENV BACKEND_URL=http://localhost:3001/api
+ENV NODE_ENV=production
+
+# Only expose the public-facing port; 3001 stays internal
+EXPOSE 3000
+CMD ["sh", "/app/start.sh"]

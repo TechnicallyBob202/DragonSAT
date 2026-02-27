@@ -24,17 +24,37 @@ export function initializeDatabase(): Promise<sqlite3.Database> {
         'utf-8'
       );
 
-      db.exec(schema, (execErr) => {
+      db.exec(schema, async (execErr) => {
         if (execErr) {
           reject(execErr);
           return;
         }
 
-        console.log('Database initialized successfully');
-        resolve(db);
+        try {
+          await runMigrations(db);
+          console.log('Database initialized successfully');
+          resolve(db);
+        } catch (migErr) {
+          reject(migErr);
+        }
       });
     });
   });
+}
+
+async function runMigrations(db: sqlite3.Database): Promise<void> {
+  const columns = await allAsync(db, 'PRAGMA table_info(users)');
+  const colNames = columns.map((c: any) => c.name);
+  if (!colNames.includes('username')) {
+    await runAsync(db, 'ALTER TABLE users ADD COLUMN username TEXT');
+  }
+  if (!colNames.includes('password_hash')) {
+    await runAsync(db, 'ALTER TABLE users ADD COLUMN password_hash TEXT');
+  }
+  await runAsync(
+    db,
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users (username) WHERE username IS NOT NULL'
+  );
 }
 
 export function runAsync(

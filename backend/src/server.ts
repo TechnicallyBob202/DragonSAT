@@ -1,10 +1,12 @@
 import express, { Express } from 'express';
 import 'dotenv/config';
 import { corsMiddleware } from './middleware/cors';
+import { requireAuth } from './middleware/auth';
 import { initializeDatabase } from './db/init';
 import { loadOpenSATData } from './services/opensat';
 import questionsRouter from './routes/questions';
 import { createProgressRouter } from './routes/progress';
+import { createAuthRouter } from './routes/auth';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
@@ -35,7 +37,8 @@ async function startServer() {
 
     // Routes
     app.use('/api', questionsRouter);
-    app.use('/api/progress', createProgressRouter(db));
+    app.use('/api/auth', createAuthRouter(db));
+    app.use('/api/progress', requireAuth, createProgressRouter(db));
 
     // 404 handler
     app.use((_req, res) => {

@@ -7,10 +7,37 @@ const apiClient = axios.create({
   timeout: 10000,
 });
 
+// Attach JWT on every request
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export interface QuestionFilterParams {
   domain?: string;
   difficulty?: string;
   limit?: number;
+}
+
+// Auth endpoints
+export async function login(username: string, password: string) {
+  const response = await apiClient.post('/auth/login', { username, password });
+  return response.data;
+}
+
+export async function register(username: string, password: string) {
+  const response = await apiClient.post('/auth/register', { username, password });
+  return response.data;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const response = await apiClient.post('/auth/change-password', { currentPassword, newPassword });
+  return response.data;
 }
 
 // Question endpoints
