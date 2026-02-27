@@ -3,11 +3,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import sqlite3 from 'sqlite3';
-import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 import { getAsync, runAsync } from '../db/init';
 import { requireAuth, AuthRequest, JWT_SECRET } from '../middleware/auth';
 
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
+
+async function getGoogleUserInfo(accessToken: string): Promise<{ sub: string; email?: string; name?: string }> {
+  const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return res.data;
+}
 
 export function createAuthRouter(db: sqlite3.Database): Router {
   const router = Router();
@@ -85,28 +92,14 @@ export function createAuthRouter(db: sqlite3.Database): Router {
 
   // POST /api/auth/google
   router.post('/google', async (req: Request, res: Response) => {
-    const { credential } = req.body;
-    if (!credential) {
-      res.status(400).json({ error: 'credential is required' });
-      return;
-    }
-
-    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-    if (!GOOGLE_CLIENT_ID) {
-      res.status(503).json({ error: 'Google OAuth not configured on this server' });
+    const { accessToken } = req.body;
+    if (!accessToken) {
+      res.status(400).json({ error: 'accessToken is required' });
       return;
     }
 
     try {
-      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-      const ticket = await client.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
-      const payload = ticket.getPayload();
-      if (!payload) {
-        res.status(401).json({ error: 'Invalid Google token' });
-        return;
-      }
-
-      const { sub: googleId, email, name } = payload;
+      const { sub: googleId, email, name } = await getGoogleUserInfo(accessToken);
 
       // Find by google_id first
       let user = await getAsync(db, 'SELECT id, username, name FROM users WHERE google_id = ?', [googleId]);
@@ -170,28 +163,14 @@ export function createAuthRouter(db: sqlite3.Database): Router {
 
   // POST /api/auth/link-google  (authenticated)
   router.post('/link-google', requireAuth, async (req: AuthRequest, res: Response) => {
-    const { credential } = req.body;
-    if (!credential) {
-      res.status(400).json({ error: 'credential is required' });
-      return;
-    }
-
-    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-    if (!GOOGLE_CLIENT_ID) {
-      res.status(503).json({ error: 'Google OAuth not configured on this server' });
+    const { accessToken } = req.body;
+    if (!accessToken) {
+      res.status(400).json({ error: 'accessToken is required' });
       return;
     }
 
     try {
-      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-      const ticket = await client.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
-      const payload = ticket.getPayload();
-      if (!payload) {
-        res.status(401).json({ error: 'Invalid Google token' });
-        return;
-      }
-
-      const { sub: googleId, email } = payload;
+      const { sub: googleId, email } = await getGoogleUserInfo(accessToken);
 
       // Make sure this google_id isn't already linked to a different account
       const existing = await getAsync(db, 'SELECT id FROM users WHERE google_id = ?', [googleId]);
