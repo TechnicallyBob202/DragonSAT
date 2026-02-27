@@ -1,239 +1,240 @@
-# HapaSAT - SAT Prep Web Application
+# DragonSAT — Study. Sharpen. Soar.
 
-A comprehensive SAT practice platform with three distinct modes: Study, Quiz, and Test. Built with Next.js (frontend) and Node.js/Express (backend) with SQLite for progress tracking.
+A comprehensive SAT practice platform with three distinct modes: Study, Quiz, and Test. Built with Next.js and Node.js/Express, with SQLite for progress tracking and Google OAuth for authentication.
+
+**Docker image:** [`technicallybob/dragonsat`](https://hub.docker.com/r/technicallybob/dragonsat)
+
+---
 
 ## Features
 
-- **Study Mode**: Learn at your own pace with immediate feedback and unlimited time
-- **Quiz Mode**: Practice with a soft timer and end-of-session feedback
-- **Test Mode**: Full SAT simulation with hard time limits and review screen
-- **Progress Tracking**: SQLite database stores all sessions and responses
-- **LaTeX Rendering**: Full math expression support with KaTeX
-- **Domain Filtering**: Study specific question categories
-- **Difficulty Selection**: Choose Easy, Medium, or Hard questions
+- **Study Mode** — Learn at your own pace with immediate feedback and unlimited time
+- **Quiz Mode** — Practice with a soft timer and end-of-session score summary
+- **Test Mode** — Full SAT simulation with hard time limits and a post-test review screen
+- **User Accounts** — Email/password registration with optional Google Sign-In
+- **Progress Tracking** — All sessions and responses stored in SQLite
+- **History & Stats** — Session history view with per-mode breakdowns and lifetime accuracy
+- **Domain Filtering** — Study specific SAT question categories
+- **Difficulty Selection** — Choose Easy, Medium, or Hard questions
+- **LaTeX Rendering** — Full math expression support via KaTeX
+- **Dark Mode** — Full light/dark theme support
+- **Settings** — Configurable display name, sound effects, dark mode toggle, and data export
 
-## Project Structure
+---
+
+## Architecture
+
+DragonSAT uses a **dual-window** design:
+
+- **Main window** (`/`) — Sidebar layout with Dashboard, History, and Settings
+- **Session window** (`/session?mode=...`) — Opened via `window.open()` when a session starts; runs independently and communicates back to the main window via `postMessage`
 
 ```
-hapasat/
-├── frontend/          # Next.js application
-│   ├── app/          # Page routes
-│   ├── components/   # React components
-│   ├── hooks/        # Custom React hooks (Zustand stores, useTimer, etc.)
-│   ├── utils/        # Utilities (API, parsing, scoring)
-│   └── styles/       # Global CSS
-├── backend/          # Node.js/Express server
+dragonsat/
+├── frontend/              # Next.js 14 application
+│   ├── app/
+│   │   ├── page.tsx       # Main window (SetupLayout)
+│   │   ├── session/       # Session window
+│   │   └── api/proxy/     # Server-side API proxy
+│   ├── components/        # React components
+│   ├── hooks/             # Zustand stores + custom hooks
+│   ├── utils/             # API client, parser, scoring, sounds
+│   └── styles/
+├── backend/               # Node.js/Express API server
 │   └── src/
-│       ├── routes/   # API endpoints
-│       ├── services/ # Business logic
-│       ├── db/       # Database setup
-│       └── types/    # TypeScript interfaces
-└── README.md
+│       ├── routes/        # /api/questions, /api/progress, /api/auth
+│       ├── services/      # OpenSAT client, progress logic
+│       ├── middleware/     # JWT auth, CORS
+│       └── db/            # SQLite schema + init
+├── Dockerfile             # Multi-stage build
+├── docker-compose.yml     # Single-container deployment
+└── .env.example           # Environment variable template
 ```
 
-## Prerequisites
+---
 
-- Node.js 16+
-- npm or yarn
+## Quick Start — Docker
 
-## Local Development Setup
+The easiest way to run DragonSAT.
 
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd HapaSAT
-```
-
-### 2. Backend Setup
+### 1. Copy the environment template
 
 ```bash
-cd backend
-
-# Install dependencies
-npm install
-
-# Create environment file
 cp .env.example .env
-
-# Build (optional, for production)
-npm run build
-
-# Start development server
-npm run dev
 ```
 
-The backend will run on `http://localhost:3001`
+### 2. Edit `.env`
 
-### 3. Frontend Setup (in a new terminal)
+```env
+# Required
+JWT_SECRET=your-long-random-secret-here   # openssl rand -hex 32
 
-```bash
-cd frontend
+# Optional — Google Sign-In (leave blank to disable)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 
-# Install dependencies
-npm install
-
-# Create environment file
-cp .env.example .env.local
-
-# Start development server
-npm run dev
-```
-
-The frontend will run on `http://localhost:3000`
-
-### 4. Access the Application
-
-Open `http://localhost:3000` in your browser.
-
-## Available Scripts
-
-### Backend
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run type-check` - Check TypeScript types
-
-### Frontend
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Check TypeScript types
-
-## Environment Configuration
-
-### Backend (.env)
-
-```
-NODE_ENV=development
-PORT=3001
-DATABASE_PATH=./data/hapasat.db
-OPENSAT_API_URL=https://api.jsonsilo.com/public/942c3c3b-3a0c-4be3-81c2-12029def19f5
+# Optional overrides
 FRONTEND_URL=http://localhost:3000
 ```
 
-### Frontend (.env.local)
+### 3. Run
 
+```bash
+docker compose up -d
 ```
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-NEXT_PUBLIC_APP_NAME=HapaSAT
+
+Open `http://localhost:3000`.
+
+Data persists in `./data/dragonsat.db` via the mounted volume.
+
+> **Note:** `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is baked into the Next.js bundle at build time.
+> If you're pulling the pre-built image from DockerHub and want Google Sign-In, you must rebuild locally with that variable set.
+
+---
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Backend
+
+```bash
+cd backend
+cp .env.example .env
+# Edit .env — set JWT_SECRET and optionally Google OAuth vars
+npm install
+npm run dev
 ```
+
+Runs on `http://localhost:3001`.
+
+### Frontend
+
+```bash
+cd frontend
+cp .env.example .env.local
+# Edit .env.local — set NEXT_PUBLIC_API_URL and optionally NEXT_PUBLIC_GOOGLE_CLIENT_ID
+npm install
+npm run dev
+```
+
+Runs on `http://localhost:3000`.
+
+### Frontend environment
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3001/api` for local dev; `/api/proxy` in Docker |
+| `BACKEND_URL` | Server-side proxy target (Docker only); not needed for local dev |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth client ID (optional) |
+
+### Backend environment
+
+| Variable | Default | Description |
+|---|---|---|
+| `NODE_ENV` | `development` | |
+| `PORT` | `3001` | Backend listen port |
+| `DATABASE_PATH` | `./data/dragonsat.db` | SQLite file path |
+| `OPENSAT_API_URL` | `https://pinesat.com/api/questions` | Question source |
+| `FRONTEND_URL` | `http://localhost:3000` | CORS allowed origin |
+| `JWT_SECRET` | — | **Required.** Sign with `openssl rand -hex 32` |
+| `GOOGLE_CLIENT_ID` | — | Google OAuth (optional) |
+| `GOOGLE_CLIENT_SECRET` | — | Google OAuth (optional) |
+
+---
 
 ## API Endpoints
 
+### Auth
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register with name, email, password |
+| `POST` | `/api/auth/login` | Login with email + password |
+| `GET` | `/api/auth/me` | Get current user (JWT required) |
+| `PATCH` | `/api/auth/profile` | Update display name (JWT required) |
+| `POST` | `/api/auth/google` | Sign in with Google access token |
+| `POST` | `/api/auth/google/link` | Link Google to existing account |
+
 ### Questions
 
-- `GET /api/questions` - Get filtered questions
-  - Query params: `domain`, `difficulty`, `limit`
-- `GET /api/questions/:id` - Get specific question
-- `GET /api/domains` - Get available domains
-- `GET /api/cache-status` - Check if OpenSAT data is loaded
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/questions` | Get filtered questions (`domain`, `difficulty`, `limit`) |
+| `GET` | `/api/questions/:id` | Get a specific question |
+| `GET` | `/api/domains` | List available domains |
+| `GET` | `/api/cache-status` | Check if OpenSAT data is loaded |
 
 ### Progress
 
-- `POST /api/progress/user` - Create or get user
-- `POST /api/progress/session/start` - Start a new session
-- `POST /api/progress/session/end` - End session with score
-- `POST /api/progress/response` - Record question response
-- `GET /api/progress/session/:sessionId` - Get session responses
-- `GET /api/progress/user/:userId` - Get user progress and stats
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/progress/user` | Create or get user record |
+| `POST` | `/api/progress/session/start` | Start a session |
+| `POST` | `/api/progress/session/end` | End session with score |
+| `POST` | `/api/progress/response` | Record a question response |
+| `GET` | `/api/progress/session/:id` | Get responses for a session |
+| `GET` | `/api/progress/user/:id` | Get user stats and history |
 
-## Data Structure
+---
 
-### Session Modes
+## Session Modes
 
 | Mode | Timer | Feedback | Navigation |
-|------|-------|----------|-----------|
+|---|---|---|---|
 | Study | None | Immediate (Check Answer) | Free |
-| Quiz | Soft Cap | End of session only | Linear (Next) |
-| Test | Hard Stop | Score report only | Linear + Review |
+| Quiz | Soft cap | End of session | Linear (Next) |
+| Test | Hard stop | Score report + review | Linear + review screen |
 
-### Database Schema
-
-- **users**: User accounts with creation timestamp
-- **sessions**: Quiz/test attempts with scores
-- **responses**: Individual question responses with timing
-
-## Development Workflow in LXC
-
-If developing in an LXC container:
-
-1. Mount your project directory in the LXC
-2. Install Node.js in the container: `apt-get install nodejs npm`
-3. Follow the setup steps above
-4. Access via the LXC's IP address: `http://<lxc-ip>:3000`
-
-## State Management
-
-- **Zustand Stores**:
-  - `useAssessmentStore` - Current session state, questions, responses
-  - `useProgressStore` - Historical sessions, user statistics
+---
 
 ## Technologies
 
-### Frontend
-- Next.js 14
-- React 18
-- TypeScript
-- Zustand (state management)
-- Tailwind CSS (styling)
-- KaTeX (math rendering)
-- react-markdown
+**Frontend:** Next.js 14, React 18, TypeScript, Zustand, Tailwind CSS, KaTeX, react-markdown
 
-### Backend
-- Express.js
-- SQLite
-- TypeScript
-- Axios
+**Backend:** Express.js, SQLite (better-sqlite3), TypeScript, Axios, JWT (jsonwebtoken)
 
-## Docker (Future)
+---
 
-Docker configuration files are included for future deployment:
-- `Dockerfile` - Base image setup
-- `docker-compose.yml` - Multi-container orchestration
+## CI/CD
 
-Currently, the application is designed for local development.
+Pushes to `main` automatically build and publish a multi-platform Docker image to DockerHub via GitHub Actions.
 
-## Testing the OpenSAT Integration
+```
+technicallybob/dragonsat:latest
+technicallybob/dragonsat:<sha>
+```
 
-When the backend starts, it automatically:
-1. Fetches the OpenSAT dataset
-2. Caches it in memory
-3. Provides filtering endpoints
+See [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml).
 
-Check the `/api/cache-status` endpoint to verify the data is loaded.
+Required repository secrets:
 
-## Contributing
+| Secret | Description |
+|---|---|
+| `DOCKERHUB_USERNAME` | DockerHub username |
+| `DOCKERHUB_TOKEN` | DockerHub access token |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | (Optional) Baked into the published image |
 
-1. Create a feature branch
-2. Make your changes
-3. Test locally
-4. Submit a pull request
-
-## License
-
-(Add your license here)
+---
 
 ## Troubleshooting
 
-### Backend won't start
-- Ensure port 3001 is available
-- Check NODE_ENV is set to 'development'
-- Verify database directory exists or can be created
+**Backend won't start** — Verify port 3001 is free. Check `DATABASE_PATH` directory is writable.
 
-### Frontend can't connect to backend
-- Ensure backend is running on port 3001
-- Check NEXT_PUBLIC_API_URL is correct
-- Clear browser cache and reload
+**Frontend can't reach backend** — Confirm `NEXT_PUBLIC_API_URL` matches where the backend is running. In Docker, this is `/api/proxy` (server-side proxy).
 
-### Questions not loading
-- Verify OpenSAT API is accessible
-- Check backend logs for fetch errors
-- Confirm `cache-status` endpoint returns `isCached: true`
+**Questions not loading** — Check `/api/cache-status`. Backend fetches the OpenSAT dataset on startup and caches it in memory. If it fails, check network access to `pinesat.com`.
 
-## Contact & Support
+**Google Sign-In button not showing** — `NEXT_PUBLIC_GOOGLE_CLIENT_ID` must be set at build time (it's baked into the Next.js bundle). Restart the dev server after adding it to `.env.local`.
 
-For issues or questions, please open a GitHub issue.
+**Session window won't open** — Some browsers block `window.open()` if not triggered directly from a user gesture. Ensure pop-ups are allowed for the app's origin.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

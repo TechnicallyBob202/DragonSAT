@@ -1,4 +1,4 @@
-# Multi-stage build for HapaSAT
+# Multi-stage build for DragonSAT
 
 # Build backend
 FROM node:18-alpine AS backend-builder
