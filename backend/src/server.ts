@@ -65,7 +65,7 @@ async function startServer() {
     );
 
     app.listen(PORT, () => {
-      console.log(`HapaSAT backend listening on port ${PORT}`);
+      console.log(`DragonSAT backend listening on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 {
-  "name": "hapasat-backend",
+  "name": "dragonsat-backend",
   "version": "0.1.0",
-  "description": "HapaSAT backend server - SAT prep application",
+  "description": "DragonSAT backend server - SAT prep application",
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node src/server.ts",

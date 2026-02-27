@@ -64,7 +64,7 @@ export function Dashboard() {
 
     window.open(
       `/session?${params.toString()}`,
-      'hapasat-session',
+      'dragonsat-session',
       'width=1200,height=800,menubar=no,toolbar=no,location=no'
     );
 

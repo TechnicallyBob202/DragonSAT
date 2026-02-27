@@ -27,6 +27,6 @@ export const useSettingsStore = create<SettingsState>()(
       setShowTimer: (showTimer) => set({ showTimer }),
       setSoundEffects: (soundEffects) => set({ soundEffects }),
     }),
-    { name: 'hapasat-settings' }
+    { name: 'dragonsat-settings' }
   )
 );

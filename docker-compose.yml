@@ -8,13 +8,13 @@ services:
       args:
         # Baked into the Next.js bundle at build time — must also be set as a runtime env var below
         NEXT_PUBLIC_GOOGLE_CLIENT_ID: "${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}"
-    container_name: hapasat
+    container_name: dragonsat
     ports:
       - '3000:3000'
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_PATH: /app/data/hapasat.db
+      DATABASE_PATH: /app/data/dragonsat.db
       OPENSAT_API_URL: "${OPENSAT_API_URL:-https://pinesat.com/api/questions}"
       BACKEND_URL: http://localhost:3001/api
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
