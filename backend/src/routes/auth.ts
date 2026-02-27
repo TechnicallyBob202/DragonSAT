@@ -16,7 +16,7 @@ async function getGoogleUserInfo(accessToken: string): Promise<{ sub: string; em
   return res.data;
 }
 
-function deriveUsername(email: string, id: string): string {
+function deriveUsername(email: string): string {
   const base = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 17);
   return base.length >= 3 ? base : `user_${base}`;
 }
@@ -49,7 +49,7 @@ export function createAuthRouter(db: sqlite3.Database): Router {
       }
 
       const id = randomUUID();
-      let username = deriveUsername(email, id);
+      let username = deriveUsername(email);
       const taken = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
       if (taken) username = `${username.slice(0, 14)}_${id.slice(0, 3)}`;
 
@@ -136,7 +136,7 @@ export function createAuthRouter(db: sqlite3.Database): Router {
       if (!user) {
         // Create a new user
         const id = randomUUID();
-        let username = deriveUsername(email ?? name ?? 'user', id);
+        let username = deriveUsername(email ?? name ?? 'user');
         const taken = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
         if (taken) username = `${username.slice(0, 14)}_${id.slice(0, 3)}`;
 
