@@ -138,9 +138,9 @@ export async function getUserStats(
   );
 
   return {
-    totalSessions: stats?.totalSessions || 0,
-    averageScore: stats?.averageScore || null,
-    totalQuestionsAnswered: stats?.totalQuestionsAnswered || 0,
-    correctAnswers: stats?.correctAnswers || 0,
+    totalSessions: stats?.totalSessions ?? 0,
+    averageScore: stats?.averageScore ?? null,
+    totalQuestionsAnswered: stats?.totalQuestionsAnswered ?? 0,
+    correctAnswers: stats?.correctAnswers ?? 0,
   };
 }

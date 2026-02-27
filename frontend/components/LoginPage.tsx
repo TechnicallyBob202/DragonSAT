@@ -35,6 +35,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       if (data.success && data.token) {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('username', data.user.username);
         onLogin();
       } else {
         setError(data.error || 'Something went wrong');

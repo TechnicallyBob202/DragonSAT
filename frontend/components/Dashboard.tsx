@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { SetupOverlay, SetupConfig } from './SetupOverlay';
 
@@ -40,6 +40,11 @@ export function Dashboard() {
   const { userStats } = useProgressStore();
   const [showSetup, setShowSetup] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'study' | 'quiz' | 'test' | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUsername(localStorage.getItem('username'));
+  }, []);
 
   const handleSelectMode = (mode: 'study' | 'quiz' | 'test') => {
     setSelectedMode(mode);
@@ -71,7 +76,9 @@ export function Dashboard() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome back!</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Welcome back{username ? `, ${username}` : ''}!
+        </h2>
         <p className="text-gray-600 dark:text-gray-400">Select a mode to begin practicing for the SAT</p>
       </div>
 

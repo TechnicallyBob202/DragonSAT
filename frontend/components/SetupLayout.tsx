@@ -13,7 +13,20 @@ type NavSection = 'dashboard' | 'history' | 'settings';
 export function SetupLayout() {
   const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
   const [sessionInProgress, setSessionInProgress] = useState(false);
-  const { setUserId, setSessions, setUserStats } = useProgressStore();
+  const [username, setUsername] = useState<string | null>(null);
+  const { setUserId, setSessions, setUserStats, reset } = useProgressStore();
+
+  useEffect(() => {
+    setUsername(localStorage.getItem('username'));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    reset();
+    window.location.reload();
+  };
 
   // Initialize userId + stats from backend so History/Settings work in setup app
   useEffect(() => {
@@ -110,8 +123,20 @@ export function SetupLayout() {
         </nav>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-          <p>v0.1.0</p>
+        <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+          {username && (
+            <p className="px-2 text-xs text-gray-500 dark:text-gray-400 truncate">
+              Signed in as <span className="font-medium text-gray-700 dark:text-gray-300">{username}</span>
+            </p>
+          )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            <span>↩</span>
+            <span>Log Out</span>
+          </button>
+          <p className="px-2 text-xs text-gray-400 dark:text-gray-600">v0.1.0</p>
         </div>
       </div>
 

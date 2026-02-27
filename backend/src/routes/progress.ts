@@ -1,5 +1,6 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import sqlite3 from 'sqlite3';
+import { AuthRequest } from '../middleware/auth';
 import {
   getOrCreateUser,
   createSession,
@@ -15,19 +16,12 @@ export function createProgressRouter(db: sqlite3.Database): Router {
 
   /**
    * POST /api/progress/user
-   * Get or create a user
+   * Get or create a user (uses JWT userId as the authoritative identity)
    */
-  router.post('/user', async (req: Request, res: Response) => {
+  router.post('/user', async (req: AuthRequest, res: Response) => {
     try {
-      const { userId, name } = req.body;
-
-      if (!userId) {
-        res.status(400).json({
-          success: false,
-          error: 'userId is required',
-        });
-        return;
-      }
+      const userId = req.userId!;
+      const { name } = req.body;
 
       const user = await getOrCreateUser(db, userId, name);
 
@@ -45,16 +39,17 @@ export function createProgressRouter(db: sqlite3.Database): Router {
 
   /**
    * POST /api/progress/session/start
-   * Start a new session
+   * Start a new session (always scoped to the authenticated user)
    */
-  router.post('/session/start', async (req: Request, res: Response) => {
+  router.post('/session/start', async (req: AuthRequest, res: Response) => {
     try {
-      const { userId, mode } = req.body;
+      const { mode } = req.body;
+      const userId = req.userId!;
 
-      if (!userId || !mode) {
+      if (!mode) {
         res.status(400).json({
           success: false,
-          error: 'userId and mode are required',
+          error: 'mode is required',
         });
         return;
       }
@@ -77,7 +72,7 @@ export function createProgressRouter(db: sqlite3.Database): Router {
    * POST /api/progress/session/end
    * End a session with optional score
    */
-  router.post('/session/end', async (req: Request, res: Response) => {
+  router.post('/session/end', async (req: AuthRequest, res: Response) => {
     try {
       const { sessionId, score, totalQuestions, correctAnswers } = req.body;
 
@@ -107,7 +102,7 @@ export function createProgressRouter(db: sqlite3.Database): Router {
    * POST /api/progress/response
    * Record a user's response to a question
    */
-  router.post('/response', async (req: Request, res: Response) => {
+  router.post('/response', async (req: AuthRequest, res: Response) => {
     try {
       const {
         sessionId,
@@ -152,7 +147,7 @@ export function createProgressRouter(db: sqlite3.Database): Router {
    * GET /api/progress/session/:sessionId
    * Get all responses for a session
    */
-  router.get('/session/:sessionId', async (req: Request, res: Response) => {
+  router.get('/session/:sessionId', async (req: AuthRequest, res: Response) => {
     try {
       const { sessionId } = req.params;
 
@@ -173,11 +168,11 @@ export function createProgressRouter(db: sqlite3.Database): Router {
 
   /**
    * GET /api/progress/user/:userId
-   * Get user's sessions and stats
+   * Get the authenticated user's sessions and stats (JWT identity is authoritative)
    */
-  router.get('/user/:userId', async (req: Request, res: Response) => {
+  router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
     try {
-      const { userId } = req.params;
+      const userId = req.userId!;
       const { limit } = req.query;
 
       const sessions = await getUserSessions(
