@@ -25,7 +25,7 @@ export function SessionModal() {
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-900">
-              📝 <strong>Don't close the session window</strong> without finishing your test or quiz.
+              📝 <strong>Don&apos;t close the session window</strong> without finishing your test or quiz.
             </p>
           </div>
 

@@ -98,7 +98,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
           <p className="text-gray-600 mb-2">
             Full SAT simulation - {Math.ceil(testTime / 60)} minutes for {questions.length} questions
           </p>
-          <p className="text-gray-600 mb-2 text-sm">⚠️ Time runs out automatically - you can't pause or go back.</p>
+          <p className="text-gray-600 mb-2 text-sm">⚠️ Time runs out automatically - you can&apos;t pause or go back.</p>
           <p className="text-gray-600 mb-6 text-sm">Final score and review available after submission.</p>
           <button onClick={() => { setSessionStarted(true); start(); }} className="btn-primary w-full mb-2">
             Begin Test
@@ -127,7 +127,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
     return (
       <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold mb-4">Time's Up!</h2>
+          <h2 className="text-2xl font-bold mb-4">Time&apos;s Up!</h2>
           <p className="text-gray-600 mb-6">Your test has been submitted automatically.</p>
         </div>
       </div>

@@ -58,7 +58,7 @@ export function StudySession({ onExit }: StudySessionProps) {
       <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Study Complete!</h2>
-          <p className="text-gray-600 mb-6">You've reviewed all available questions.</p>
+          <p className="text-gray-600 mb-6">You&apos;ve reviewed all available questions.</p>
           {onExit && (
             <button onClick={onExit} className="btn-primary w-full">
               Back to Dashboard
