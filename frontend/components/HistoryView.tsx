@@ -57,8 +57,8 @@ export function HistoryView() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Session History</h2>
-        <p className="text-gray-600 mt-2">Review your past sessions and track your progress</p>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Session History</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">Review your past sessions and track your progress</p>
       </div>
 
       {/* Overall Stats */}
@@ -76,31 +76,31 @@ export function HistoryView() {
       )}
 
       {/* Sessions List */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="font-semibold text-gray-900">Recent Sessions</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Recent Sessions</h3>
         </div>
 
         {recentSessions.length > 0 ? (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {recentSessions.map((session) => (
-              <div key={session.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+              <div key={session.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <span className="text-2xl">{getModeIcon(session.mode)}</span>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {session.mode.charAt(0).toUpperCase() + session.mode.slice(1)} Mode
                       </p>
-                      <p className="text-sm text-gray-600">{formatDate(session.start_time)}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(session.start_time)}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-6">
                     {session.score != null && (
                       <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">{session.score.toFixed(1)}%</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-lg font-bold text-gray-900 dark:text-white">{session.score.toFixed(1)}%</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           {session.correct_answers}/{session.total_questions}
                         </p>
                       </div>
@@ -115,7 +115,7 @@ export function HistoryView() {
           </div>
         ) : (
           <div className="px-6 py-8 text-center">
-            <p className="text-gray-600">No sessions yet. Start practicing to build your history!</p>
+            <p className="text-gray-600 dark:text-gray-400">No sessions yet. Start practicing to build your history!</p>
           </div>
         )}
       </div>
@@ -131,10 +131,10 @@ interface StatBoxProps {
 
 function StatBox({ label, value, color }: StatBoxProps) {
   const colorMap = {
-    blue: 'bg-blue-50 text-blue-700',
-    green: 'bg-green-50 text-green-700',
-    purple: 'bg-purple-50 text-purple-700',
-    orange: 'bg-orange-50 text-orange-700',
+    blue: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+    green: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+    purple: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+    orange: 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
   };
 
   return (

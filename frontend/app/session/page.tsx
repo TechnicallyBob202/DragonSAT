@@ -30,6 +30,7 @@ export default function SessionPage() {
     total: number;
     correct: number;
   } | null>(null);
+  const initializedRef = useRef(false);
 
   // Notify parent whenever this window unloads (force-close, navigate away, etc.)
   useEffect(() => {
@@ -41,6 +42,10 @@ export default function SessionPage() {
   }, []);
 
   useEffect(() => {
+    // Prevent React Strict Mode from running initialization twice
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     const initializeSession = async (config: SessionConfig) => {
       try {
         let userId = localStorage.getItem('userId');

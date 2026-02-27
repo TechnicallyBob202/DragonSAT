@@ -78,13 +78,13 @@ export function SetupLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Left Sidebar */}
-      <div className="w-64 bg-white shadow-md flex flex-col">
+      <div className="w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col">
         {/* App Header */}
-        <div className="px-6 py-8 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">HapaSAT</h1>
-          <p className="text-xs text-gray-500 mt-1">SAT Prep Companion</p>
+        <div className="px-6 py-8 border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">HapaSAT</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">SAT Prep Companion</p>
         </div>
 
         {/* Navigation */}
@@ -110,13 +110,13 @@ export function SetupLayout() {
         </nav>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 text-xs text-gray-500">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
           <p>v0.1.0</p>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900">
         {renderContent()}
       </div>
 
@@ -139,8 +139,8 @@ function NavItem({ label, icon, isActive, onClick }: NavItemProps) {
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
         isActive
-          ? 'bg-blue-50 text-blue-700 font-medium'
-          : 'text-gray-700 hover:bg-gray-50'
+          ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
       }`}
     >
       <span className="text-xl">{icon}</span>

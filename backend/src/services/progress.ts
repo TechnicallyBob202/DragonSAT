@@ -133,7 +133,7 @@ export async function getUserStats(
       SUM(total_questions) as totalQuestionsAnswered,
       SUM(correct_answers) as correctAnswers
      FROM sessions
-     WHERE user_id = ? AND mode IN ('quiz', 'test')`,
+     WHERE user_id = ?`,
     [userId]
   );
 

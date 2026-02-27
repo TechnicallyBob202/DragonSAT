@@ -71,8 +71,8 @@ export function Dashboard() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h2>
-        <p className="text-gray-600">Select a mode to begin practicing for the SAT</p>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome back!</h2>
+        <p className="text-gray-600 dark:text-gray-400">Select a mode to begin practicing for the SAT</p>
       </div>
 
       {/* Mode Selection Cards */}
@@ -161,11 +161,11 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, bgColor, textColor }: StatCardProps) {
   return (
-    <div className={`${bgColor} rounded-lg p-6`}>
+    <div className={`${bgColor} dark:bg-gray-800 rounded-lg p-6`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className={`text-sm font-medium ${textColor}`}>{label}</p>
-          <p className={`text-3xl font-bold ${textColor} mt-2`}>{value}</p>
+          <p className={`text-sm font-medium ${textColor} dark:text-gray-300`}>{label}</p>
+          <p className={`text-3xl font-bold ${textColor} dark:text-white mt-2`}>{value}</p>
         </div>
         <span className="text-2xl">{icon}</span>
       </div>
