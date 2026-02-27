@@ -2,12 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        # Baked into the Next.js bundle at build time — must also be set as a runtime env var below
-        NEXT_PUBLIC_GOOGLE_CLIENT_ID: "${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}"
+    image: technicallybob/dragonsat:latest
     container_name: dragonsat
     ports:
       - '3000:3000'
@@ -19,10 +14,10 @@ services:
       BACKEND_URL: http://localhost:3001/api
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
       JWT_SECRET: "${JWT_SECRET:-change-me-in-production}"
-      # Google OAuth (optional — set all three to enable Google Sign-In)
+      # Google OAuth (optional — set both to enable Google Sign-In)
+      # Note: NEXT_PUBLIC_GOOGLE_CLIENT_ID is baked into the image at build time and cannot be changed here
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
       GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
-      NEXT_PUBLIC_GOOGLE_CLIENT_ID: "${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}"
     volumes:
       - ./data:/app/data
 

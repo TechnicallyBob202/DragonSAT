@@ -69,10 +69,9 @@ cp .env.example .env
 # Required
 JWT_SECRET=your-long-random-secret-here   # openssl rand -hex 32
 
-# Optional — Google Sign-In (leave blank to disable)
+# Optional — Google Sign-In (set both to enable)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 
 # Optional overrides
 FRONTEND_URL=http://localhost:3000
@@ -88,8 +87,7 @@ Open `http://localhost:3000`.
 
 Data persists in `./data/dragonsat.db` via the mounted volume.
 
-> **Note:** `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is baked into the Next.js bundle at build time.
-> If you're pulling the pre-built image from DockerHub and want Google Sign-In, you must rebuild locally with that variable set.
+> **Google Sign-In** is pre-configured in the published image. To enable it, set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in your `.env` — no rebuild required.
 
 ---
 
