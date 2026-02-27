@@ -133,9 +133,12 @@ export function SetupLayout() {
       {/* Left Sidebar */}
       <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-800 flex flex-col">
         {/* Logo */}
-        <div className="px-6 py-6">
-          <img src="/logo.png" alt="DragonSAT" className="h-10" />
-          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-1">Study. Sharpen. Soar.</p>
+        <div className="px-6 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-blue-500">DragonSAT</h1>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">Study. Sharpen. Soar.</p>
+          </div>
+          <img src="/logo.png" alt="DragonSAT" className="h-10 w-10 object-contain" />
         </div>
 
         {/* Navigation */}
