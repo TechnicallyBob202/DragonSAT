@@ -41,9 +41,8 @@ export default function SessionPage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  useEffect(() => {
-    // Prevent React Strict Mode from running initialization twice
-    if (initializedRef.current) return;
+  useEffect((): void | (() => void) => {
+    if (initializedRef.current) return undefined;
     initializedRef.current = true;
 
     const initializeSession = async (config: SessionConfig) => {
@@ -82,7 +81,6 @@ export default function SessionPage() {
       }
     };
 
-    // Read config from URL params (most reliable cross-window method)
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode') as 'study' | 'quiz' | 'test' | null;
     const questionCount = parseInt(params.get('questionCount') || '10');
@@ -90,18 +88,22 @@ export default function SessionPage() {
     const domain = params.get('domain') || undefined;
     const difficulty = params.get('difficulty') || undefined;
 
+    let cleanup: (() => void) | undefined;
+
     if (mode) {
       initializeSession({ mode, questionCount, section, domain, difficulty });
     } else {
-      // Fallback: listen for postMessage config
       const handleMessage = (event: MessageEvent) => {
         if (event.data.type === 'INIT_SESSION') {
           initializeSession(event.data.config);
         }
       };
+
       window.addEventListener('message', handleMessage);
-      return () => window.removeEventListener('message', handleMessage);
+      cleanup = () => window.removeEventListener('message', handleMessage);
     }
+
+    return cleanup;
   }, []);
 
   // Called by quiz/test when the session finishes with a score
