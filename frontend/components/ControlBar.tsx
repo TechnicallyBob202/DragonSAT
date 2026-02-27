@@ -25,7 +25,7 @@ export function ControlBar({
   onCheckAnswer,
   onNext,
   onPrevious,
-  onSubmit,
+  onSubmit: _onSubmit,
   currentQuestion = 0,
   totalQuestions = 0,
   canCheckAnswer = true,

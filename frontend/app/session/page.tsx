@@ -104,7 +104,7 @@ export default function SessionPage() {
     }
 
     return cleanup;
-  }, []);
+  }, [assessmentStore, progressStore]);
 
   // Called by quiz/test when the session finishes with a score
   const handleCompleteSession = async (score: number, total: number, correct: number) => {
