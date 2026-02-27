@@ -76,7 +76,7 @@ export function HistoryView() {
       )}
 
       {/* Sessions List */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="font-semibold text-gray-900 dark:text-white">Recent Sessions</h3>
         </div>
@@ -138,9 +138,9 @@ function StatBox({ label, value, color }: StatBoxProps) {
   };
 
   return (
-    <div className={`${colorMap[color]} rounded-lg p-4`}>
-      <p className="text-xs font-medium opacity-75">{label}</p>
-      <p className="text-2xl font-bold mt-2">{value}</p>
+    <div className={`${colorMap[color]} rounded-2xl p-5`}>
+      <p className="text-xs font-bold uppercase tracking-wide opacity-75">{label}</p>
+      <p className="text-2xl font-black mt-2">{value}</p>
     </div>
   );
 }

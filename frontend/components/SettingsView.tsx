@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { useSettingsStore, type Theme, type FontSize } from '../hooks/useSettingsStore';
-import { changePassword } from '../utils/api';
+import { changePassword, getMe, linkGoogle } from '../utils/api';
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export function SettingsView() {
   const { userId, reset } = useProgressStore();
@@ -95,6 +98,8 @@ export function SettingsView() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">{userId || 'Not set'}</p>
               </div>
             </div>
+
+            {GOOGLE_CLIENT_ID && <LinkGoogleSection />}
 
             <button
               onClick={handleExportData}
@@ -268,6 +273,71 @@ function ChangePasswordForm() {
         {loading ? 'Updating...' : 'Update Password'}
       </button>
     </form>
+  );
+}
+
+// ─── Link Google Account ──────────────────────────────────────────────────────
+
+function LinkGoogleSection() {
+  const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
+  const [linkedEmail, setLinkedEmail] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    getMe()
+      .then((data) => {
+        setGoogleLinked(data.user.googleLinked);
+        setLinkedEmail(data.user.email ?? null);
+      })
+      .catch(() => setGoogleLinked(false));
+  }, []);
+
+  const handleLinkSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    setError('');
+    setSuccess('');
+    try {
+      const data = await linkGoogle(credentialResponse.credential);
+      setGoogleLinked(true);
+      setLinkedEmail(data.email ?? null);
+      setSuccess('Google account linked successfully!');
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Linking failed. Please try again.');
+    }
+  };
+
+  if (googleLinked === null) return null; // still loading
+
+  return (
+    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-medium text-gray-900 dark:text-white">Google Account</p>
+          {googleLinked && linkedEmail
+            ? <p className="text-sm text-green-600 dark:text-green-400 mt-0.5">Linked as {linkedEmail}</p>
+            : <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Not linked — link to sign in with Google</p>
+          }
+        </div>
+        {googleLinked && (
+          <span className="text-green-500 text-xl" title="Linked">✓</span>
+        )}
+      </div>
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {success && <p className="text-sm text-green-600 dark:text-green-400">{success}</p>}
+      {!googleLinked && (
+        <div className="flex justify-start">
+          <GoogleLogin
+            onSuccess={handleLinkSuccess}
+            onError={() => setError('Google sign-in failed. Please try again.')}
+            shape="pill"
+            size="medium"
+            text="signin_with"
+            logo_alignment="center"
+          />
+        </div>
+      )}
+    </div>
   );
 }
 

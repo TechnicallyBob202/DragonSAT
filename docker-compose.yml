@@ -16,6 +16,9 @@ services:
       BACKEND_URL: http://localhost:3001/api
       FRONTEND_URL: http://localhost:3000
       JWT_SECRET: change-me-in-production
+      # Google OAuth (optional — set both to enable Google Sign-In)
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
     volumes:
       - ./data:/app/data
 

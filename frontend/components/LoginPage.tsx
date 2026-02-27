@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { login, register } from '../utils/api';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { login, register, googleAuth } from '../utils/api';
 
 interface LoginPageProps {
   onLogin: () => void;
 }
 
 type Tab = 'signin' | 'register';
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [tab, setTab] = useState<Tab>('signin');
@@ -16,6 +19,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleAuthSuccess = (data: any) => {
+    if (data.success && data.token) {
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userId', data.user.id);
+      localStorage.setItem('username', data.user.username);
+      onLogin();
+    } else {
+      setError(data.error || 'Something went wrong');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,17 +45,23 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       const data = tab === 'signin'
         ? await login(username, password)
         : await register(username, password);
-
-      if (data.success && data.token) {
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('userId', data.user.id);
-        localStorage.setItem('username', data.user.username);
-        onLogin();
-      } else {
-        setError(data.error || 'Something went wrong');
-      }
+      handleAuthSuccess(data);
     } catch (err: any) {
       setError(err?.response?.data?.error || 'Unable to connect. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    setError('');
+    setLoading(true);
+    try {
+      const data = await googleAuth(credentialResponse.credential);
+      handleAuthSuccess(data);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -60,8 +80,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900">HapaSAT</h1>
-          <p className="text-sm text-gray-500 mt-1">SAT Prep Companion</p>
+          <h1 className="text-4xl font-black text-blue-500">HapaSAT</h1>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-1">SAT Prep</p>
         </div>
 
         {/* Tabs */}
@@ -107,7 +127,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               placeholder="your_username"
               required
               autoComplete="username"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -122,7 +142,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               placeholder="••••••••"
               required
               autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -138,7 +158,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="••••••••"
                 required
                 autoComplete="new-password"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           )}
@@ -146,12 +166,33 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition-colors"
+            className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-bold rounded-2xl text-sm transition-colors shadow-md"
           >
             {loading
               ? (tab === 'signin' ? 'Signing in...' : 'Creating account...')
               : (tab === 'signin' ? 'Sign In' : 'Create Account')}
           </button>
+
+          {/* Google Sign-In */}
+          {GOOGLE_CLIENT_ID && (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs text-gray-400 font-medium">or</span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google sign-in failed. Please try again.')}
+                  shape="pill"
+                  size="large"
+                  text={tab === 'register' ? 'signup_with' : 'signin_with'}
+                  logo_alignment="center"
+                />
+              </div>
+            </>
+          )}
         </form>
 
         {tab === 'register' && (

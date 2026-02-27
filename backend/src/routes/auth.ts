@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import sqlite3 from 'sqlite3';
+import { OAuth2Client } from 'google-auth-library';
 import { getAsync, runAsync } from '../db/init';
 import { requireAuth, AuthRequest, JWT_SECRET } from '../middleware/auth';
 
@@ -79,6 +80,136 @@ export function createAuthRouter(db: sqlite3.Database): Router {
     } catch (err) {
       console.error('Login error:', err);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // POST /api/auth/google
+  router.post('/google', async (req: Request, res: Response) => {
+    const { credential } = req.body;
+    if (!credential) {
+      res.status(400).json({ error: 'credential is required' });
+      return;
+    }
+
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    if (!GOOGLE_CLIENT_ID) {
+      res.status(503).json({ error: 'Google OAuth not configured on this server' });
+      return;
+    }
+
+    try {
+      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+      const payload = ticket.getPayload();
+      if (!payload) {
+        res.status(401).json({ error: 'Invalid Google token' });
+        return;
+      }
+
+      const { sub: googleId, email, name } = payload;
+
+      // Find by google_id first
+      let user = await getAsync(db, 'SELECT id, username, name FROM users WHERE google_id = ?', [googleId]);
+
+      if (!user && email) {
+        // Link to existing account that has the same email
+        user = await getAsync(db, 'SELECT id, username, name FROM users WHERE email = ?', [email]);
+        if (user) {
+          await runAsync(db, 'UPDATE users SET google_id = ? WHERE id = ?', [googleId, user.id]);
+        }
+      }
+
+      if (!user) {
+        // Create a new user; derive a username from the email prefix
+        const id = randomUUID();
+        const base = (email?.split('@')[0] ?? name ?? 'user')
+          .replace(/[^a-zA-Z0-9_]/g, '_')
+          .slice(0, 17);
+        let username = base.length >= 3 ? base : `user_${base}`;
+
+        // Handle username collisions with a short suffix
+        const taken = await getAsync(db, 'SELECT id FROM users WHERE username = ?', [username]);
+        if (taken) {
+          username = `${username}_${id.slice(0, 5)}`;
+        }
+
+        await runAsync(
+          db,
+          'INSERT INTO users (id, name, username, email, google_id) VALUES (?, ?, ?, ?, ?)',
+          [id, name ?? username, username, email ?? null, googleId]
+        );
+        user = { id, username, name: name ?? username };
+      }
+
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+      res.json({ success: true, token, user: { id: user.id, username: user.username, name: user.name } });
+    } catch (err) {
+      console.error('Google auth error:', err);
+      res.status(401).json({ error: 'Google authentication failed' });
+    }
+  });
+
+  // GET /api/auth/me  (authenticated)
+  router.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
+    try {
+      const user = await getAsync(
+        db,
+        'SELECT id, username, email, google_id FROM users WHERE id = ?',
+        [req.userId]
+      );
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+      res.json({ success: true, user: { id: user.id, username: user.username, email: user.email ?? null, googleLinked: !!user.google_id } });
+    } catch (err) {
+      console.error('GET /me error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // POST /api/auth/link-google  (authenticated)
+  router.post('/link-google', requireAuth, async (req: AuthRequest, res: Response) => {
+    const { credential } = req.body;
+    if (!credential) {
+      res.status(400).json({ error: 'credential is required' });
+      return;
+    }
+
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    if (!GOOGLE_CLIENT_ID) {
+      res.status(503).json({ error: 'Google OAuth not configured on this server' });
+      return;
+    }
+
+    try {
+      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+      const payload = ticket.getPayload();
+      if (!payload) {
+        res.status(401).json({ error: 'Invalid Google token' });
+        return;
+      }
+
+      const { sub: googleId, email } = payload;
+
+      // Make sure this google_id isn't already linked to a different account
+      const existing = await getAsync(db, 'SELECT id FROM users WHERE google_id = ?', [googleId]);
+      if (existing && existing.id !== req.userId) {
+        res.status(409).json({ error: 'This Google account is already linked to a different user' });
+        return;
+      }
+
+      await runAsync(
+        db,
+        'UPDATE users SET google_id = ?, email = COALESCE(email, ?) WHERE id = ?',
+        [googleId, email ?? null, req.userId]
+      );
+
+      res.json({ success: true, googleLinked: true, email: email ?? null });
+    } catch (err) {
+      console.error('Link-google error:', err);
+      res.status(500).json({ error: 'Google linking failed' });
     }
   });
 

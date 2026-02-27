@@ -31,6 +31,21 @@ export async function login(username: string, password: string) {
   return response.data;
 }
 
+export async function googleAuth(credential: string) {
+  const response = await apiClient.post('/auth/google', { credential });
+  return response.data;
+}
+
+export async function getMe() {
+  const response = await apiClient.get('/auth/me');
+  return response.data;
+}
+
+export async function linkGoogle(credential: string) {
+  const response = await apiClient.post('/auth/link-google', { credential });
+  return response.data;
+}
+
 export async function register(username: string, password: string) {
   const response = await apiClient.post('/auth/register', { username, password });
   return response.data;

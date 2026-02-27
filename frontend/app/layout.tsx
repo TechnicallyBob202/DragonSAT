@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import '../styles/globals.css';
 import { SettingsApplier } from '@/components/SettingsApplier';
+import { GoogleAuthProvider } from '@/components/GoogleAuthProvider';
 
 export const metadata: Metadata = {
   title: 'HapaSAT - SAT Prep Made Easy',
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-50">
         <SettingsApplier />
-        {children}
+        <GoogleAuthProvider>
+          {children}
+        </GoogleAuthProvider>
       </body>
     </html>
   );

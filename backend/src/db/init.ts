@@ -51,9 +51,19 @@ async function runMigrations(db: sqlite3.Database): Promise<void> {
   if (!colNames.includes('password_hash')) {
     await runAsync(db, 'ALTER TABLE users ADD COLUMN password_hash TEXT');
   }
+  if (!colNames.includes('email')) {
+    await runAsync(db, 'ALTER TABLE users ADD COLUMN email TEXT');
+  }
+  if (!colNames.includes('google_id')) {
+    await runAsync(db, 'ALTER TABLE users ADD COLUMN google_id TEXT');
+  }
   await runAsync(
     db,
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users (username) WHERE username IS NOT NULL'
+  );
+  await runAsync(
+    db,
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users (google_id) WHERE google_id IS NOT NULL'
   );
 }
 

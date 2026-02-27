@@ -75,12 +75,25 @@ export function Dashboard() {
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="mb-6">
+        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-1">
           Welcome back{username ? `, ${username}` : ''}!
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">Select a mode to begin practicing for the SAT</p>
+        <p className="text-gray-500 dark:text-gray-400 font-semibold">Select a mode to begin practicing for the SAT</p>
       </div>
+
+      {/* Stats Strip */}
+      {userStats && (
+        <div className="flex items-center mb-10 p-3 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+          <StatBadge icon="🏆" value={userStats.totalSessions} label="Sessions" />
+          <Divider />
+          <StatBadge icon="⚡" value={`${Math.round(userStats.averageScore ?? 0)}%`} label="Avg Score" />
+          <Divider />
+          <StatBadge icon="✅" value={userStats.totalQuestionsAnswered} label="Questions" />
+          <Divider />
+          <StatBadge icon="🎯" value={userStats.correctAnswers} label="Correct" />
+        </div>
+      )}
 
       {/* Mode Selection Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -88,59 +101,23 @@ export function Dashboard() {
           <button
             key={modeCard.mode}
             onClick={() => handleSelectMode(modeCard.mode)}
-            className="group relative overflow-hidden rounded-xl p-6 text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 active:translate-y-0"
+            className="group relative overflow-hidden rounded-2xl p-8 text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-100"
           >
             {/* Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${modeCard.gradient}`}></div>
 
             {/* Content */}
-            <div className="relative z-10">
-              <div className="text-4xl mb-3">{modeCard.icon}</div>
-              <h3 className="text-xl font-bold text-left mb-2">{modeCard.title}</h3>
-              <p className="text-sm text-white/90 text-left">{modeCard.description}</p>
-            </div>
-
-            {/* Hover Arrow */}
-            <div className="absolute bottom-3 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity text-lg">
-              →
+            <div className="relative z-10 text-left">
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-75 mb-1 block">
+                {modeCard.mode} mode
+              </span>
+              <div className="text-6xl mb-4">{modeCard.icon}</div>
+              <h3 className="text-xl font-black mb-2">{modeCard.title}</h3>
+              <p className="text-sm text-white/90">{modeCard.description}</p>
             </div>
           </button>
         ))}
       </div>
-
-      {/* Quick Stats */}
-      {userStats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard
-            label="Sessions Completed"
-            value={userStats.totalSessions}
-            icon="📊"
-            bgColor="bg-blue-50"
-            textColor="text-blue-700"
-          />
-          <StatCard
-            label="Average Score"
-            value={userStats.averageScore ? `${userStats.averageScore.toFixed(1)}%` : 'N/A'}
-            icon="📈"
-            bgColor="bg-green-50"
-            textColor="text-green-700"
-          />
-          <StatCard
-            label="Questions Done"
-            value={userStats.totalQuestionsAnswered}
-            icon="✓"
-            bgColor="bg-purple-50"
-            textColor="text-purple-700"
-          />
-          <StatCard
-            label="Correct Answers"
-            value={userStats.correctAnswers}
-            icon="🎯"
-            bgColor="bg-orange-50"
-            textColor="text-orange-700"
-          />
-        </div>
-      )}
 
       {/* Setup Overlay */}
       {showSetup && selectedMode && (
@@ -158,24 +135,16 @@ export function Dashboard() {
   );
 }
 
-interface StatCardProps {
-  label: string;
-  value: string | number;
-  icon: string;
-  bgColor: string;
-  textColor: string;
-}
-
-function StatCard({ label, value, icon, bgColor, textColor }: StatCardProps) {
+function StatBadge({ icon, value, label }: { icon: string; value: string | number; label: string }) {
   return (
-    <div className={`${bgColor} dark:bg-gray-800 rounded-lg p-6`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className={`text-sm font-medium ${textColor} dark:text-gray-300`}>{label}</p>
-          <p className={`text-3xl font-bold ${textColor} dark:text-white mt-2`}>{value}</p>
-        </div>
-        <span className="text-2xl">{icon}</span>
-      </div>
+    <div className="flex-1 flex flex-col items-center py-2 px-3">
+      <span className="text-xl mb-0.5">{icon}</span>
+      <span className="text-lg font-black text-gray-900 dark:text-white leading-tight">{value}</span>
+      <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">{label}</span>
     </div>
   );
+}
+
+function Divider() {
+  return <div className="w-px h-10 bg-gray-100 dark:bg-gray-700 flex-shrink-0" />;
 }
