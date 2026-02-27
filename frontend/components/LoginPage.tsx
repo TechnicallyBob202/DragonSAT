@@ -53,22 +53,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setLoading(true);
-      try {
-        const data = await googleAuth(tokenResponse.access_token);
-        handleAuthSuccess(data);
-      } catch (err: any) {
-        setError(err?.response?.data?.error || 'Google sign-in failed. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: () => setError('Google sign-in failed. Please try again.'),
-  });
-
   const switchTab = (t: Tab) => {
     setTab(t);
     setError('');
@@ -183,15 +167,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <span className="text-xs text-gray-400 font-medium">or</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
-              <button
-                type="button"
-                onClick={() => googleLogin()}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-300 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors bg-white shadow-sm"
-              >
-                <GoogleIcon />
-                {tab === 'register' ? 'Sign up with Google' : 'Sign in with Google'}
-              </button>
+              <GoogleSignInButton
+                tab={tab}
+                loading={loading}
+                onStart={() => { setError(''); setLoading(true); }}
+                onSuccess={handleAuthSuccess}
+                onError={(msg) => { setError(msg); setLoading(false); }}
+              />
             </>
           )}
         </form>
@@ -204,6 +186,41 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         )}
       </div>
     </div>
+  );
+}
+
+interface GoogleSignInButtonProps {
+  tab: Tab;
+  loading: boolean;
+  onStart: () => void;
+  onSuccess: (data: any) => void;
+  onError: (msg: string) => void;
+}
+
+function GoogleSignInButton({ tab, loading, onStart, onSuccess, onError }: GoogleSignInButtonProps) {
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      onStart();
+      try {
+        const data = await googleAuth(tokenResponse.access_token);
+        onSuccess(data);
+      } catch (err: any) {
+        onError(err?.response?.data?.error || 'Google sign-in failed. Please try again.');
+      }
+    },
+    onError: () => onError('Google sign-in failed. Please try again.'),
+  });
+
+  return (
+    <button
+      type="button"
+      onClick={() => googleLogin()}
+      disabled={loading}
+      className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-300 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors bg-white shadow-sm"
+    >
+      <GoogleIcon />
+      {tab === 'register' ? 'Sign up with Google' : 'Sign in with Google'}
+    </button>
   );
 }
 

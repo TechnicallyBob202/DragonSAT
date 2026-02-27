@@ -293,22 +293,6 @@ function LinkGoogleSection() {
       .catch(() => setGoogleLinked(false));
   }, []);
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setSuccess('');
-      try {
-        const data = await linkGoogle(tokenResponse.access_token);
-        setGoogleLinked(true);
-        setLinkedEmail(data.email ?? null);
-        setSuccess('Google account linked successfully!');
-      } catch (err: any) {
-        setError(err?.response?.data?.error || 'Linking failed. Please try again.');
-      }
-    },
-    onError: () => setError('Google sign-in failed. Please try again.'),
-  });
-
   if (googleLinked === null) return null; // still loading
 
   return (
@@ -328,15 +312,37 @@ function LinkGoogleSection() {
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       {success && <p className="text-sm text-green-600 dark:text-green-400">{success}</p>}
       {!googleLinked && (
-        <button
-          onClick={() => googleLogin()}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 transition-colors bg-transparent shadow-sm"
-        >
-          <GoogleIcon />
-          Link Google Account
-        </button>
+        <LinkGoogleButton
+          onSuccess={(email) => { setGoogleLinked(true); setLinkedEmail(email); setSuccess('Google account linked successfully!'); }}
+          onError={(msg) => setError(msg)}
+        />
       )}
     </div>
+  );
+}
+
+function LinkGoogleButton({ onSuccess, onError }: { onSuccess: (email: string | null) => void; onError: (msg: string) => void }) {
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const data = await linkGoogle(tokenResponse.access_token);
+        onSuccess(data.email ?? null);
+      } catch (err: any) {
+        onError(err?.response?.data?.error || 'Linking failed. Please try again.');
+      }
+    },
+    onError: () => onError('Google sign-in failed. Please try again.'),
+  });
+
+  return (
+    <button
+      type="button"
+      onClick={() => googleLogin()}
+      className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 transition-colors bg-transparent shadow-sm"
+    >
+      <GoogleIcon />
+      Link Google Account
+    </button>
   );
 }
 
