@@ -52,6 +52,7 @@ export function Dashboard() {
     const params = new URLSearchParams({
       mode: selectedMode,
       questionCount: config.questionCount.toString(),
+      ...(config.section && { section: config.section }),
       ...(config.domain && { domain: config.domain }),
       ...(config.difficulty && { difficulty: config.difficulty }),
     });

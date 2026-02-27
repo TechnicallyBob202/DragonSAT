@@ -13,6 +13,7 @@ import { ResultsDisplay } from '@/components/ResultsDisplay';
 interface SessionConfig {
   mode: 'study' | 'quiz' | 'test';
   questionCount: number;
+  section?: string;
   domain?: string;
   difficulty?: string;
 }
@@ -57,6 +58,7 @@ export default function SessionPage() {
         assessmentStore.setSessionId(sessionData.session.id);
 
         const questionsData = await getQuestions({
+          section: config.section,
           domain: config.domain,
           difficulty: config.difficulty,
           limit: config.questionCount,
@@ -79,11 +81,12 @@ export default function SessionPage() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode') as 'study' | 'quiz' | 'test' | null;
     const questionCount = parseInt(params.get('questionCount') || '10');
+    const section = params.get('section') || undefined;
     const domain = params.get('domain') || undefined;
     const difficulty = params.get('difficulty') || undefined;
 
     if (mode) {
-      initializeSession({ mode, questionCount, domain, difficulty });
+      initializeSession({ mode, questionCount, section, domain, difficulty });
     } else {
       // Fallback: listen for postMessage config
       const handleMessage = (event: MessageEvent) => {

@@ -38,18 +38,31 @@ export function SetupLayout() {
 
   // Listen for session window messages
   useEffect(() => {
+    const refreshProgress = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      try {
+        const progress = await getUserProgress(userId, 20);
+        if (progress.success) {
+          setSessions(progress.sessions);
+          setUserStats(progress.stats);
+        }
+      } catch { /* ignore */ }
+    };
+
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'SESSION_STARTED') {
         setSessionInProgress(true);
       }
       if (event.data.type === 'SESSION_ENDED') {
         setSessionInProgress(false);
+        refreshProgress();
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [setSessions, setUserStats]);
 
   const renderContent = () => {
     switch (activeSection) {

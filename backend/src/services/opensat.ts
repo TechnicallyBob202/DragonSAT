@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { OpenSATQuestion, FilteredQuestion, QuestionFilterParams } from '../types';
 
-let cachedQuestions: OpenSATQuestion[] = [];
+let cachedQuestions: FilteredQuestion[] = [];
 let isCached = false;
 
 const OPENSAT_URL = process.env.OPENSAT_API_URL ||
-  'https://api.jsonsilo.com/public/942c3c3b-3a0c-4be3-81c2-12029def19f5';
+  'https://pinesat.com/api/questions';
 
 export async function loadOpenSATData(): Promise<void> {
   if (isCached && cachedQuestions.length > 0) {
@@ -14,11 +14,18 @@ export async function loadOpenSATData(): Promise<void> {
   }
 
   try {
-    console.log('Fetching OpenSAT data...');
-    const response = await axios.get<{ math: OpenSATQuestion[] }>(OPENSAT_URL);
-    cachedQuestions = response.data.math;
+    console.log('Fetching OpenSAT data from pinesat.com...');
+    const [mathRes, englishRes] = await Promise.all([
+      axios.get<OpenSATQuestion[]>(`${OPENSAT_URL}?section=math`),
+      axios.get<OpenSATQuestion[]>(`${OPENSAT_URL}?section=english`),
+    ]);
+
+    const mathQs: FilteredQuestion[] = mathRes.data.map(q => ({ ...q, section: 'math' }));
+    const englishQs: FilteredQuestion[] = englishRes.data.map(q => ({ ...q, section: 'english' }));
+    cachedQuestions = [...mathQs, ...englishQs];
+
     isCached = true;
-    console.log(`Loaded ${cachedQuestions.length} questions from OpenSAT`);
+    console.log(`Loaded ${mathQs.length} math + ${englishQs.length} english questions (${cachedQuestions.length} total)`);
   } catch (error) {
     console.error('Failed to load OpenSAT data:', error);
     throw error;
@@ -31,6 +38,13 @@ export function getFilteredQuestions(params: QuestionFilterParams): FilteredQues
   }
 
   let filtered = [...cachedQuestions];
+
+  // Filter by section (math / english)
+  if (params.section && params.section.trim() !== '') {
+    filtered = filtered.filter(q =>
+      q.section?.toLowerCase() === params.section!.toLowerCase()
+    );
+  }
 
   // Filter by domain
   if (params.domain && params.domain.trim() !== '') {
@@ -46,24 +60,25 @@ export function getFilteredQuestions(params: QuestionFilterParams): FilteredQues
     );
   }
 
-  // Limit results
-  const limit = params.limit || 10;
-  filtered = filtered.slice(0, limit);
+  // Shuffle so repeated calls with the same params give variety
+  const shuffled = filtered.sort(() => Math.random() - 0.5);
 
-  return filtered;
+  const limit = params.limit || 10;
+  return shuffled.slice(0, limit);
 }
 
-export function getQuestionById(id: string): OpenSATQuestion | undefined {
+export function getQuestionById(id: string): FilteredQuestion | undefined {
   return cachedQuestions.find(q => q.id === id);
 }
 
 export function getAllDomains(): string[] {
-  if (!isCached || cachedQuestions.length === 0) {
-    return [];
-  }
-
+  if (!isCached || cachedQuestions.length === 0) return [];
   const domains = new Set(cachedQuestions.map(q => q.domain));
   return Array.from(domains).sort();
+}
+
+export function getAllSections(): string[] {
+  return ['math', 'english'];
 }
 
 export function getCacheStatus(): { isCached: boolean; count: number } {

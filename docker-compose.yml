@@ -12,7 +12,7 @@ services:
       NODE_ENV: production
       PORT: 3001
       DATABASE_PATH: /app/data/hapasat.db
-      OPENSAT_API_URL: https://api.jsonsilo.com/public/942c3c3b-3a0c-4be3-81c2-12029def19f5
+      OPENSAT_API_URL: https://pinesat.com/api/questions
       BACKEND_URL: http://localhost:3001/api
       FRONTEND_URL: http://localhost:3000
       JWT_SECRET: change-me-in-production

@@ -12,9 +12,30 @@ interface SetupOverlayProps {
 
 export interface SetupConfig {
   questionCount: number;
+  section?: string;
   domain?: string;
   difficulty?: string;
 }
+
+const SECTIONS = [
+  { value: '', label: 'All Sections' },
+  { value: 'math', label: 'Math' },
+  { value: 'english', label: 'Reading & Writing' },
+];
+
+const MATH_DOMAINS = [
+  'Algebra',
+  'Advanced Math',
+  'Geometry and Trigonometry',
+  'Problem-Solving and Data Analysis',
+];
+
+const ENGLISH_DOMAINS = [
+  'Information and Ideas',
+  'Craft and Structure',
+  'Expression of Ideas',
+  'Standard English Conventions',
+];
 
 export function SetupOverlay({
   mode,
@@ -24,16 +45,29 @@ export function SetupOverlay({
   onCancel,
 }: SetupOverlayProps) {
   const [questionCount, setQuestionCount] = useState(10);
+  const [selectedSection, setSelectedSection] = useState<string>('');
   const [selectedDomain, setSelectedDomain] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
+
+  const handleSectionChange = (section: string) => {
+    setSelectedSection(section);
+    setSelectedDomain(''); // reset domain when section changes
+  };
 
   const handleStart = () => {
     onStart({
       questionCount,
+      section: selectedSection || undefined,
       domain: selectedDomain || undefined,
       difficulty: selectedDifficulty || undefined,
     });
   };
+
+  // Determine which domain list to show based on selected section
+  const domainOptions =
+    selectedSection === 'math' ? MATH_DOMAINS :
+    selectedSection === 'english' ? ENGLISH_DOMAINS :
+    [...MATH_DOMAINS, ...ENGLISH_DOMAINS].sort();
 
   const modeLabels = {
     study: 'Study Mode',
@@ -46,7 +80,7 @@ export function SetupOverlay({
       <div className="card max-w-lg w-full mx-4">
         <h2 className="text-2xl font-bold mb-6">{modeLabels[mode]} Setup</h2>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Question Count */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -62,8 +96,30 @@ export function SetupOverlay({
             />
           </div>
 
-          {/* Domain Selection */}
-          {mode === 'study' && domains.length > 0 && (
+          {/* Section Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Section
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {SECTIONS.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => handleSectionChange(s.value)}
+                  className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    selectedSection === s.value
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Domain Selection (shown in study mode or when a section is picked) */}
+          {(mode === 'study' || selectedSection) && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Domain (Optional)
@@ -74,7 +130,7 @@ export function SetupOverlay({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Domains</option>
-                {domains.map((domain) => (
+                {domainOptions.map((domain) => (
                   <option key={domain} value={domain}>
                     {domain}
                   </option>

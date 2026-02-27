@@ -97,7 +97,7 @@ export function HistoryView() {
                   </div>
 
                   <div className="flex items-center gap-6">
-                    {session.score !== undefined && (
+                    {session.score != null && (
                       <div className="text-right">
                         <p className="text-lg font-bold text-gray-900">{session.score.toFixed(1)}%</p>
                         <p className="text-xs text-gray-600">

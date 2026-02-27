@@ -3,6 +3,7 @@ import {
   getFilteredQuestions,
   getQuestionById,
   getAllDomains,
+  getAllSections,
   getCacheStatus,
 } from '../services/opensat';
 
@@ -18,9 +19,10 @@ const router = Router();
  */
 router.get('/questions', (req: Request, res: Response) => {
   try {
-    const { domain, difficulty, limit } = req.query;
+    const { section, domain, difficulty, limit } = req.query;
 
     const questions = getFilteredQuestions({
+      section: section as string | undefined,
       domain: domain as string | undefined,
       difficulty: difficulty as string | undefined,
       limit: limit ? parseInt(limit as string) : 10,
@@ -81,6 +83,22 @@ router.get('/domains', (_req: Request, res: Response) => {
       count: domains.length,
       domains,
     });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * GET /api/sections
+ * Get list of all available sections (math, english)
+ */
+router.get('/sections', (_req: Request, res: Response) => {
+  try {
+    const sections = getAllSections();
+    res.json({ success: true, sections });
   } catch (error) {
     res.status(500).json({
       success: false,

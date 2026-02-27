@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import '../styles/globals.css';
+import { SettingsApplier } from '@/components/SettingsApplier';
 
 export const metadata: Metadata = {
   title: 'HapaSAT - SAT Prep Made Easy',
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gray-50">
+        <SettingsApplier />
         {children}
       </body>
     </html>

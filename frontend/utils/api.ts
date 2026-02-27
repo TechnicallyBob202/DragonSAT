@@ -19,6 +19,7 @@ apiClient.interceptors.request.use((config) => {
 });
 
 export interface QuestionFilterParams {
+  section?: string;
   domain?: string;
   difficulty?: string;
   limit?: number;
