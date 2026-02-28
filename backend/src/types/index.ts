@@ -49,6 +49,16 @@ export interface Response {
   correct_answer: string;
   is_correct: boolean;
   time_spent_seconds?: number;
+  section?: string;
+  domain?: string;
+}
+
+export interface DomainStat {
+  domain: string;
+  section: string;
+  total: number;
+  correct: number;
+  accuracy_pct: number;
 }
 
 export interface QuestionFilterParams {

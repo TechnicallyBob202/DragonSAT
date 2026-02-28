@@ -6,6 +6,8 @@ import { OptionGroup } from './OptionGroup';
 import { ControlBar } from './ControlBar';
 import { useAssessmentStore } from '../hooks/useAssessmentStore';
 import { useSettingsStore } from '../hooks/useSettingsStore';
+import { recordResponse as apiRecordResponse } from '../utils/api';
+import { getSectionFromDomain } from '../utils/questionParser';
 import { useTimer } from '../hooks/useTimer';
 import { calculateTestTime, isTimeExpired, isTimeWarning } from '../utils/timing';
 import { playTimerWarning, playTimerExpired } from '../utils/sounds';
@@ -19,6 +21,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
   const {
     questions,
     currentQuestionIndex,
+    sessionId,
     getProgress,
     getCurrentQuestion,
     recordResponse,
@@ -58,27 +61,35 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
   const currentQuestion = getCurrentQuestion();
   const progress = getProgress();
 
+  const persistResponse = (answer: string) => {
+    const isCorrect = answer === currentQuestion!.correct_answer;
+    recordResponse({
+      questionId: currentQuestion!.id,
+      userAnswer: answer,
+      isCorrect,
+      timeSpentSeconds: 0,
+    });
+    if (sessionId) {
+      apiRecordResponse(
+        sessionId,
+        currentQuestion!.id,
+        answer,
+        currentQuestion!.correct_answer,
+        isCorrect,
+        0,
+        getSectionFromDomain(currentQuestion!.domain),
+        currentQuestion!.domain
+      ).catch(() => {});
+    }
+  };
+
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      if (selectedAnswer) {
-        recordResponse({
-          questionId: currentQuestion!.id,
-          userAnswer: selectedAnswer,
-          isCorrect: selectedAnswer === currentQuestion!.correct_answer,
-          timeSpentSeconds: 0,
-        });
-      }
+      if (selectedAnswer) persistResponse(selectedAnswer);
       moveToNextQuestion();
       setSelectedAnswer(null);
     } else {
-      if (selectedAnswer) {
-        recordResponse({
-          questionId: currentQuestion!.id,
-          userAnswer: selectedAnswer,
-          isCorrect: selectedAnswer === currentQuestion!.correct_answer,
-          timeSpentSeconds: 0,
-        });
-      }
+      if (selectedAnswer) persistResponse(selectedAnswer);
       setReviewMode(true);
     }
   };

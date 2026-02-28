@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { randomUUID } from 'crypto';
-import { User, Session, Response } from '../types';
+import { User, Session, Response, DomainStat } from '../types';
 import { runAsync, getAsync, allAsync } from '../db/init';
 
 export async function getOrCreateUser(
@@ -73,14 +73,16 @@ export async function recordResponse(
   userAnswer: string | null,
   correctAnswer: string,
   isCorrect: boolean,
-  timeSpentSeconds?: number
+  timeSpentSeconds?: number,
+  section?: string,
+  domain?: string
 ): Promise<void> {
   const responseId = randomUUID();
 
   await runAsync(
     db,
-    `INSERT INTO responses (id, session_id, question_id, user_answer, correct_answer, is_correct, time_spent_seconds)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO responses (id, session_id, question_id, user_answer, correct_answer, is_correct, time_spent_seconds, section, domain)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       responseId,
       sessionId,
@@ -89,6 +91,8 @@ export async function recordResponse(
       correctAnswer,
       isCorrect ? 1 : 0,
       timeSpentSeconds ?? null,
+      section ?? null,
+      domain ?? null,
     ]
   );
 }
@@ -113,6 +117,27 @@ export async function getUserSessions(
     db,
     `SELECT * FROM sessions WHERE user_id = ? ORDER BY start_time DESC LIMIT ?`,
     [userId, limit]
+  );
+}
+
+export async function getAnalytics(
+  db: sqlite3.Database,
+  userId: string
+): Promise<DomainStat[]> {
+  return allAsync(
+    db,
+    `SELECT
+       r.domain,
+       r.section,
+       COUNT(*) as total,
+       SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) as correct,
+       ROUND(100.0 * SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as accuracy_pct
+     FROM responses r
+     JOIN sessions s ON r.session_id = s.id
+     WHERE s.user_id = ? AND r.domain IS NOT NULL
+     GROUP BY r.domain
+     ORDER BY total DESC`,
+    [userId]
   );
 }
 

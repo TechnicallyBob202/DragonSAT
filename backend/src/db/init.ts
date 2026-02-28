@@ -68,6 +68,15 @@ async function runMigrations(db: sqlite3.Database): Promise<void> {
     db,
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users (google_id) WHERE google_id IS NOT NULL'
   );
+
+  const responseCols = await allAsync(db, 'PRAGMA table_info(responses)');
+  const respColNames = responseCols.map((c: any) => c.name);
+  if (!respColNames.includes('section')) {
+    await runAsync(db, 'ALTER TABLE responses ADD COLUMN section TEXT');
+  }
+  if (!respColNames.includes('domain')) {
+    await runAsync(db, 'ALTER TABLE responses ADD COLUMN domain TEXT');
+  }
 }
 
 export function runAsync(

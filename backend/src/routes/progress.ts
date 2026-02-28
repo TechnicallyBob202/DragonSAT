@@ -9,6 +9,7 @@ import {
   getSessionResponses,
   getUserSessions,
   getUserStats,
+  getAnalytics,
 } from '../services/progress';
 
 export function createProgressRouter(db: sqlite3.Database): Router {
@@ -111,6 +112,8 @@ export function createProgressRouter(db: sqlite3.Database): Router {
         correctAnswer,
         isCorrect,
         timeSpentSeconds,
+        section,
+        domain,
       } = req.body;
 
       if (!sessionId || !questionId || correctAnswer === undefined) {
@@ -128,7 +131,9 @@ export function createProgressRouter(db: sqlite3.Database): Router {
         userAnswer || null,
         correctAnswer,
         isCorrect || false,
-        timeSpentSeconds
+        timeSpentSeconds,
+        section,
+        domain
       );
 
       res.json({
@@ -187,6 +192,23 @@ export function createProgressRouter(db: sqlite3.Database): Router {
         sessions,
         stats,
       });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  /**
+   * GET /api/progress/analytics
+   * Per-domain accuracy breakdown for the authenticated user
+   */
+  router.get('/analytics', async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const stats = await getAnalytics(db, userId);
+      res.json({ success: true, stats });
     } catch (error) {
       res.status(500).json({
         success: false,

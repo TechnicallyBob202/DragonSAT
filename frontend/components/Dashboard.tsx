@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { SetupOverlay, SetupConfig } from './SetupOverlay';
+import { getAnalytics } from '../utils/api';
 
 interface ModeCard {
   mode: 'study' | 'quiz' | 'test';
@@ -36,14 +37,26 @@ const MODES: ModeCard[] = [
   },
 ];
 
+interface DomainStat {
+  domain: string;
+  section: string;
+  total: number;
+  correct: number;
+  accuracy_pct: number;
+}
+
 export function Dashboard() {
   const { userStats } = useProgressStore();
   const [showSetup, setShowSetup] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'study' | 'quiz' | 'test' | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [analyticsStats, setAnalyticsStats] = useState<DomainStat[]>([]);
 
   useEffect(() => {
     setDisplayName(localStorage.getItem('name') || localStorage.getItem('username'));
+    getAnalytics()
+      .then((data) => { if (data.success) setAnalyticsStats(data.stats); })
+      .catch(() => {});
   }, []);
 
   const handleSelectMode = (mode: 'study' | 'quiz' | 'test') => {
@@ -117,6 +130,57 @@ export function Dashboard() {
             </div>
           </button>
         ))}
+      </div>
+
+      {/* Domain Analytics */}
+      <div className="mb-8">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Performance by Domain</h3>
+        {analyticsStats.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Complete some sessions to see your domain breakdown.
+          </p>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-700">
+                  <th className="text-left px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wide">Domain</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wide">Section</th>
+                  <th className="text-right px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wide">Answered</th>
+                  <th className="text-right px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wide">Correct</th>
+                  <th className="text-right px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wide">Accuracy</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analyticsStats.map((stat, i) => (
+                  <tr key={stat.domain} className={i % 2 === 0 ? '' : 'bg-gray-50 dark:bg-gray-700/30'}>
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{stat.domain}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        stat.section === 'math'
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                      }`}>
+                        {stat.section === 'math' ? 'Math' : 'English'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">{stat.total}</td>
+                    <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">{stat.correct}</td>
+                    <td className="px-4 py-3 text-right">
+                      <span className={`font-bold ${
+                        stat.accuracy_pct >= 80 ? 'text-green-600 dark:text-green-400' :
+                        stat.accuracy_pct >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
+                        'text-red-600 dark:text-red-400'
+                      }`}>
+                        {stat.accuracy_pct}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Setup Overlay */}

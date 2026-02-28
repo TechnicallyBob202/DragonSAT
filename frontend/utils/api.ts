@@ -123,7 +123,9 @@ export async function recordResponse(
   userAnswer: string | null,
   correctAnswer: string,
   isCorrect: boolean,
-  timeSpentSeconds?: number
+  timeSpentSeconds?: number,
+  section?: string,
+  domain?: string
 ) {
   const response = await apiClient.post('/progress/response', {
     sessionId,
@@ -132,7 +134,14 @@ export async function recordResponse(
     correctAnswer,
     isCorrect,
     timeSpentSeconds,
+    section,
+    domain,
   });
+  return response.data;
+}
+
+export async function getAnalytics() {
+  const response = await apiClient.get('/progress/analytics');
   return response.data;
 }
 

@@ -54,3 +54,14 @@ export function parseQuestion(data: any): ParsedQuestion {
 export function parseQuestions(data: any[]): ParsedQuestion[] {
   return data.map(parseQuestion);
 }
+
+const MATH_DOMAINS = new Set([
+  'Algebra',
+  'Advanced Math',
+  'Geometry and Trigonometry',
+  'Problem-Solving and Data Analysis',
+]);
+
+export function getSectionFromDomain(domain: string): string {
+  return MATH_DOMAINS.has(domain) ? 'math' : 'english';
+}

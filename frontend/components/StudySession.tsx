@@ -5,6 +5,8 @@ import { QuestionRenderer } from './QuestionRenderer';
 import { OptionGroup } from './OptionGroup';
 import { ControlBar } from './ControlBar';
 import { useAssessmentStore } from '../hooks/useAssessmentStore';
+import { recordResponse as apiRecordResponse } from '../utils/api';
+import { getSectionFromDomain } from '../utils/questionParser';
 
 interface StudySessionProps {
   onExit?: () => void;
@@ -14,6 +16,7 @@ export function StudySession({ onExit }: StudySessionProps) {
   const {
     questions,
     currentQuestionIndex,
+    sessionId,
     getProgress,
     getCurrentQuestion,
     recordResponse,
@@ -71,12 +74,25 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   const handleCheckAnswer = () => {
     if (selectedAnswer) {
+      const isCorrect = selectedAnswer === currentQuestion.correct_answer;
       recordResponse({
         questionId: currentQuestion.id,
         userAnswer: selectedAnswer,
-        isCorrect: selectedAnswer === currentQuestion.correct_answer,
+        isCorrect,
         timeSpentSeconds: 0,
       });
+      if (sessionId) {
+        apiRecordResponse(
+          sessionId,
+          currentQuestion.id,
+          selectedAnswer,
+          currentQuestion.correct_answer,
+          isCorrect,
+          0,
+          getSectionFromDomain(currentQuestion.domain),
+          currentQuestion.domain
+        ).catch(() => {});
+      }
       setShowExplanation(true);
     }
   };

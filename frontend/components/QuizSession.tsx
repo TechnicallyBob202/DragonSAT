@@ -6,6 +6,8 @@ import { OptionGroup } from './OptionGroup';
 import { ControlBar } from './ControlBar';
 import { useAssessmentStore } from '../hooks/useAssessmentStore';
 import { useSettingsStore } from '../hooks/useSettingsStore';
+import { recordResponse as apiRecordResponse } from '../utils/api';
+import { getSectionFromDomain } from '../utils/questionParser';
 import { useTimer } from '../hooks/useTimer';
 import { calculateQuizTime, isTimeWarning } from '../utils/timing';
 import { playTimerWarning, playTimerExpired } from '../utils/sounds';
@@ -19,6 +21,7 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
   const {
     questions,
     currentQuestionIndex,
+    sessionId,
     getProgress,
     getCurrentQuestion,
     recordResponse,
@@ -66,12 +69,25 @@ export function QuizSession({ onComplete, onExit }: QuizSessionProps) {
 
   const handleNext = () => {
     if (selectedAnswer) {
+      const isCorrect = selectedAnswer === currentQuestion!.correct_answer;
       recordResponse({
         questionId: currentQuestion!.id,
         userAnswer: selectedAnswer,
-        isCorrect: selectedAnswer === currentQuestion!.correct_answer,
+        isCorrect,
         timeSpentSeconds: 0,
       });
+      if (sessionId) {
+        apiRecordResponse(
+          sessionId,
+          currentQuestion!.id,
+          selectedAnswer,
+          currentQuestion!.correct_answer,
+          isCorrect,
+          0,
+          getSectionFromDomain(currentQuestion!.domain),
+          currentQuestion!.domain
+        ).catch(() => {});
+      }
 
       if (currentQuestionIndex < questions.length - 1) {
         moveToNextQuestion();
