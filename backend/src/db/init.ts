@@ -77,6 +77,10 @@ async function runMigrations(db: sqlite3.Database): Promise<void> {
   if (!respColNames.includes('domain')) {
     await runAsync(db, 'ALTER TABLE responses ADD COLUMN domain TEXT');
   }
+  await runAsync(
+    db,
+    'CREATE INDEX IF NOT EXISTS idx_responses_domain ON responses(domain)'
+  );
 }
 
 export function runAsync(

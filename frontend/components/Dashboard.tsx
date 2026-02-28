@@ -121,9 +121,6 @@ export function Dashboard() {
 
             {/* Content */}
             <div className="relative z-10 text-left">
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-75 mb-1 block">
-                {modeCard.mode} mode
-              </span>
               <div className="text-6xl mb-4">{modeCard.icon}</div>
               <h3 className="text-xl font-black mb-2">{modeCard.title}</h3>
               <p className="text-sm text-white/90">{modeCard.description}</p>

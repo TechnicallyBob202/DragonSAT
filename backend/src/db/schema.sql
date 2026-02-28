@@ -36,4 +36,3 @@ CREATE TABLE IF NOT EXISTS responses (
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_mode ON sessions(mode);
 CREATE INDEX IF NOT EXISTS idx_responses_session_id ON responses(session_id);
-CREATE INDEX IF NOT EXISTS idx_responses_domain ON responses(domain);
