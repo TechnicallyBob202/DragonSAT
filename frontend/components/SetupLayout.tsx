@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Dashboard } from './Dashboard';
 import { HistoryView } from './HistoryView';
 import { SettingsView } from './SettingsView';
@@ -85,7 +86,7 @@ export function SetupLayout() {
       }
     };
     initUser();
-  }, []);
+  }, [setUserId, setSessions, setUserStats]);
 
   // Listen for session window messages
   useEffect(() => {
@@ -138,7 +139,7 @@ export function SetupLayout() {
             <h1 className="text-2xl font-black text-blue-500">DragonSAT</h1>
             <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">Study. Sharpen. Soar.</p>
           </div>
-          <img src="/logo.png" alt="DragonSAT" className="h-10 w-10 object-contain" />
+          <Image src="/logo.png" alt="DragonSAT" width={40} height={40} className="object-contain" />
         </div>
 
         {/* Navigation */}

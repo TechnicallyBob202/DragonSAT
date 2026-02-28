@@ -1,7 +1,7 @@
 # Multi-stage build for DragonSAT
 
 # Build backend
-FROM node:18-alpine AS backend-builder
+FROM node:20-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci
@@ -9,7 +9,7 @@ COPY backend ./
 RUN npm run build
 
 # Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
@@ -19,15 +19,13 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 RUN apk add --no-cache sqlite python3 make g++
 WORKDIR /app
 
 # Copy backend
 COPY --from=backend-builder /app/backend/dist ./backend/dist
 COPY --from=backend-builder /app/backend/package*.json ./backend/
-# schema.sql must be alongside the compiled init.js at dist/db/
-COPY --from=backend-builder /app/backend/src/db/schema.sql ./backend/dist/db/schema.sql
 RUN cd backend && npm ci --only=production
 
 # Copy frontend

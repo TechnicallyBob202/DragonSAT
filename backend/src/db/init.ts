@@ -2,7 +2,10 @@ import sqlite3 from 'sqlite3';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const dbPath = process.env.DATABASE_PATH || './data/dragonsat.db';
+const dbPath = path.resolve(
+  process.env.DATABASE_PATH ||
+    path.join(__dirname, '..', '..', 'data', 'dragonsat.db')
+);
 
 export function initializeDatabase(): Promise<sqlite3.Database> {
   return new Promise((resolve, reject) => {

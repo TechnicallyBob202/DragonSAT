@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useGoogleLogin } from '@react-oauth/google';
 import { login, register, googleAuth } from '../utils/api';
 import { useGoogleConfig } from './GoogleAuthProvider';
@@ -69,7 +70,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
-          <img src="/logo.png" alt="DragonSAT" className="h-16 mx-auto" />
+          <Image src="/logo.png" alt="DragonSAT" width={64} height={64} className="mx-auto" />
           <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-2">Study. Sharpen. Soar.</p>
         </div>
 
