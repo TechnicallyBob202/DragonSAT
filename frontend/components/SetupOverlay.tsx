@@ -39,7 +39,7 @@ const ENGLISH_DOMAINS = [
 
 export function SetupOverlay({
   mode,
-  domains,
+  _domains,
   isLoading = false,
   onStart,
   onCancel,
