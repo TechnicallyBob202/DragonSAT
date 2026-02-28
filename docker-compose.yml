@@ -15,11 +15,7 @@ services:
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
       JWT_SECRET: "${JWT_SECRET:-change-me-in-production}"
       # Google OAuth (optional — set both to enable Google Sign-In)
-      # Note: NEXT_PUBLIC_GOOGLE_CLIENT_ID is baked into the image at build time and cannot be changed here
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
       GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
     volumes:
       - ./data:/app/data
-
-volumes:
-  data:

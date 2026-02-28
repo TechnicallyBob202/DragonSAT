@@ -16,19 +16,18 @@ RUN npm ci
 COPY frontend ./
 ARG NEXT_PUBLIC_API_URL=/api/proxy
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
-ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 RUN npm run build
 
 # Production stage
 FROM node:18-alpine
-RUN apk add --no-cache sqlite
+RUN apk add --no-cache sqlite python3 make g++
 WORKDIR /app
 
 # Copy backend
 COPY --from=backend-builder /app/backend/dist ./backend/dist
 COPY --from=backend-builder /app/backend/package*.json ./backend/
-COPY --from=backend-builder /app/backend/src/db ./backend/src/db
+# schema.sql must be alongside the compiled init.js at dist/db/
+COPY --from=backend-builder /app/backend/src/db/schema.sql ./backend/dist/db/schema.sql
 RUN cd backend && npm ci --only=production
 
 # Copy frontend

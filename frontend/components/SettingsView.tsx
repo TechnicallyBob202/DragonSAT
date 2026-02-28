@@ -5,10 +5,10 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { useSettingsStore, type Theme, type FontSize } from '../hooks/useSettingsStore';
 import { changePassword, getMe, linkGoogle, updateProfile } from '../utils/api';
-
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+import { useGoogleConfig } from './GoogleAuthProvider';
 
 export function SettingsView() {
+  const { googleClientId } = useGoogleConfig();
   const { userId, reset } = useProgressStore();
   const { theme, fontSize, showTimer, soundEffects, setTheme, setFontSize, setShowTimer, setSoundEffects } = useSettingsStore();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -100,7 +100,7 @@ export function SettingsView() {
               </div>
             </div>
 
-            {GOOGLE_CLIENT_ID && <LinkGoogleSection />}
+            {googleClientId && <LinkGoogleSection />}
 
             <button
               onClick={handleExportData}

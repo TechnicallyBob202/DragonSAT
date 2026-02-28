@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { login, register, googleAuth } from '../utils/api';
+import { useGoogleConfig } from './GoogleAuthProvider';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -10,9 +11,8 @@ interface LoginPageProps {
 
 type Tab = 'signin' | 'register';
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
 export function LoginPage({ onLogin }: LoginPageProps) {
+  const { googleClientId } = useGoogleConfig();
   const [tab, setTab] = useState<Tab>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -180,7 +180,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </button>
 
           {/* Google Sign-In */}
-          {GOOGLE_CLIENT_ID && (
+          {googleClientId && (
             <>
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-gray-200" />
