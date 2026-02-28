@@ -1,7 +1,7 @@
 # Multi-stage build for DragonSAT
 
 # Build backend
-FROM node:18-alpine AS backend-builder
+FROM node:20-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci
@@ -9,7 +9,7 @@ COPY backend ./
 RUN npm run build
 
 # Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
@@ -21,7 +21,7 @@ ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 RUN apk add --no-cache sqlite
 WORKDIR /app
 

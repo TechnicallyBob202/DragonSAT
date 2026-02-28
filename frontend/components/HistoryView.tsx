@@ -23,7 +23,7 @@ export function HistoryView() {
     };
 
     loadHistory();
-  }, [userId]);
+  }, [userId, setSessions, setUserStats]);
 
   const getModeColor = (mode: string) => {
     switch (mode) {
