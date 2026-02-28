@@ -36,6 +36,8 @@ COPY --from=frontend-builder /app/frontend/.next ./frontend/.next
 COPY --from=frontend-builder /app/frontend/public ./frontend/public
 COPY --from=frontend-builder /app/frontend/package*.json ./frontend/
 COPY --from=frontend-builder /app/frontend/node_modules ./frontend/node_modules
+# Allow non-root users to write the Next.js image cache at runtime
+RUN mkdir -p /app/frontend/.next/cache/images && chmod -R a+w /app/frontend/.next/cache
 
 # Startup script
 COPY start.sh /app/start.sh
