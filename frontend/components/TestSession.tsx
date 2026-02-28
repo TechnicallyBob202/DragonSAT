@@ -92,7 +92,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   if (!sessionStarted) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
         <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Test Mode</h2>
           <p className="text-gray-600 mb-2">
@@ -113,7 +113,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   if (reviewMode) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Test Complete!</h2>
           <p className="text-gray-600 mb-6">Review your answers or submit for scoring.</p>
@@ -125,7 +125,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
 
   if (!currentQuestion || isTimeExpired(timeRemaining)) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Time&apos;s Up!</h2>
           <p className="text-gray-600 mb-6">Your test has been submitted automatically.</p>
@@ -142,7 +142,7 @@ export function TestSession({ onComplete, onExit }: TestSessionProps) {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
       <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} />
         <div className="mt-8 space-y-4">

@@ -45,33 +45,33 @@ export function ResultsDisplay({
         </div>
 
         {/* Score Percentage */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           {score.toFixed(1)}%
         </h1>
 
         {/* Correct Answers */}
-        <p className="text-xl text-gray-600 mb-6">
+        <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
           {correct} out of {total} correct
         </p>
 
         {/* Feedback */}
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-8">
-          <p className="text-blue-900 font-medium">{feedback}</p>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded mb-8">
+          <p className="text-blue-900 dark:text-blue-200 font-medium">{feedback}</p>
         </div>
 
         {/* Score Breakdown */}
         <div className="space-y-3 mb-8">
-          <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-gray-700">Correct</span>
+          <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="text-gray-700 dark:text-gray-300">Correct</span>
             <span className="font-bold text-green-600">{correct}</span>
           </div>
-          <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-gray-700">Incorrect</span>
+          <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="text-gray-700 dark:text-gray-300">Incorrect</span>
             <span className="font-bold text-red-600">{total - correct}</span>
           </div>
-          <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-gray-700">Accuracy</span>
-            <span className="font-bold text-gray-900">
+          <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="text-gray-700 dark:text-gray-300">Accuracy</span>
+            <span className="font-bold text-gray-900 dark:text-gray-100">
               {((correct / total) * 100).toFixed(1)}%
             </span>
           </div>
@@ -86,7 +86,7 @@ export function ResultsDisplay({
         </button>
 
         {/* Next Steps */}
-        <p className="text-sm text-gray-600 mt-6">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-6">
           {score >= 80
             ? 'Great work! Try a harder difficulty level next time.'
             : 'Review the material and try again to improve your score.'}

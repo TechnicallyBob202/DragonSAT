@@ -66,22 +66,22 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
+        <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100 dark:border-gray-700">
           <Image src="/logo.png" alt="DragonSAT" width={64} height={64} className="mx-auto" />
-          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-2">Study. Sharpen. Soar.</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-2">Study. Sharpen. Soar.</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-100">
+        <div className="flex border-b border-gray-100 dark:border-gray-700">
           <button
             onClick={() => switchTab('signin')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               tab === 'signin'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Sign In
@@ -90,8 +90,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             onClick={() => switchTab('register')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               tab === 'register'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Create Account
@@ -101,14 +101,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
 
           {tab === 'register' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Full Name
               </label>
               <input
@@ -118,13 +118,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="Jane Smith"
                 required
                 autoComplete="name"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email Address
             </label>
             <input
@@ -134,12 +134,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               placeholder="you@example.com"
               required
               autoComplete="email"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password
             </label>
             <input
@@ -149,13 +149,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               placeholder="••••••••"
               required
               autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           {tab === 'register' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Confirm Password
               </label>
               <input
@@ -165,7 +165,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="••••••••"
                 required
                 autoComplete="new-password"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           )}
@@ -184,9 +184,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           {googleClientId && (
             <>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400 font-medium">or</span>
-                <div className="flex-1 h-px bg-gray-200" />
+                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">or</span>
+                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
               </div>
               <GoogleSignInButton
                 tab={tab}
@@ -200,7 +200,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </form>
 
         {tab === 'register' && (
-          <p className="px-8 pb-6 text-xs text-gray-500 text-center">
+          <p className="px-8 pb-6 text-xs text-gray-500 dark:text-gray-400 text-center">
             Password must be at least 6 characters.
           </p>
         )}
@@ -236,7 +236,7 @@ function GoogleSignInButton({ tab, loading, onStart, onSuccess, onError }: Googl
       type="button"
       onClick={() => googleLogin()}
       disabled={loading}
-      className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-300 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors bg-white shadow-sm"
+      className="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors bg-white dark:bg-gray-700 shadow-sm"
     >
       <GoogleIcon />
       {tab === 'register' ? 'Sign up with Google' : 'Sign in with Google'}

@@ -83,7 +83,7 @@ export function SetupOverlay({
         <div className="space-y-5">
           {/* Question Count */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Number of Questions
             </label>
             <input
@@ -92,13 +92,13 @@ export function SetupOverlay({
               max="100"
               value={questionCount}
               onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
 
           {/* Section Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Section
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -109,7 +109,7 @@ export function SetupOverlay({
                   className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
                     selectedSection === s.value
                       ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   {s.label}
@@ -121,13 +121,13 @@ export function SetupOverlay({
           {/* Domain Selection (shown in study mode or when a section is picked) */}
           {(mode === 'study' || selectedSection) && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Domain (Optional)
               </label>
               <select
                 value={selectedDomain}
                 onChange={(e) => setSelectedDomain(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               >
                 <option value="">All Domains</option>
                 {domainOptions.map((domain) => (
@@ -141,13 +141,13 @@ export function SetupOverlay({
 
           {/* Difficulty Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Difficulty (Optional)
             </label>
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">All Difficulties</option>
               <option value="Easy">Easy</option>
@@ -157,7 +157,7 @@ export function SetupOverlay({
           </div>
 
           {/* Info Text */}
-          <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-blue-800 dark:text-blue-200">
             {mode === 'study' && 'Study mode allows unlimited time and immediate feedback.'}
             {mode === 'quiz' && 'Quiz mode includes a timer and feedback only at the end.'}
             {mode === 'test' && 'Test mode is a full SAT simulation with time limits and no going back.'}

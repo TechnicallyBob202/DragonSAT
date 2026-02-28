@@ -30,11 +30,11 @@ export function QuestionRenderer({
 
       {/* Paragraph (if exists) */}
       {question.paragraph && (
-        <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}
-            className="markdown text-gray-700"
+            className="markdown text-gray-700 dark:text-gray-300"
           >
             {question.paragraph}
           </ReactMarkdown>
@@ -42,7 +42,7 @@ export function QuestionRenderer({
       )}
 
       {/* Question */}
-      <div className="text-lg">
+      <div className="text-lg text-gray-900 dark:text-gray-100">
         <ReactMarkdown
           remarkPlugins={[remarkMath]}
           rehypePlugins={[rehypeKatex]}
@@ -55,7 +55,7 @@ export function QuestionRenderer({
       {/* Choices */}
       <div className="space-y-3">
         {['A', 'B', 'C', 'D'].map((choice) => (
-          <div key={choice} className="text-base">
+          <div key={choice} className="text-base text-gray-900 dark:text-gray-100">
             <strong>{choice}.</strong>{' '}
             <ReactMarkdown
               remarkPlugins={[remarkMath]}
@@ -70,12 +70,12 @@ export function QuestionRenderer({
 
       {/* Explanation */}
       {showExplanation && (
-        <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-          <h4 className="font-semibold text-green-900 mb-2">Explanation:</h4>
+        <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border-l-4 border-green-500">
+          <h4 className="font-semibold text-green-900 dark:text-green-300 mb-2">Explanation:</h4>
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}
-            className="markdown text-green-800"
+            className="markdown text-green-800 dark:text-green-300"
           >
             {question.explanation}
           </ReactMarkdown>

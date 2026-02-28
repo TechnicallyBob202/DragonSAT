@@ -31,7 +31,7 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   if (!sessionStarted) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
         <div className="card max-w-md w-full">
           <h2 className="text-2xl font-bold mb-4">Study Mode</h2>
           <p className="text-gray-600 mb-6">
@@ -55,7 +55,7 @@ export function StudySession({ onExit }: StudySessionProps) {
 
   if (sessionComplete || !currentQuestion) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
         <div className="card max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Study Complete!</h2>
           <p className="text-gray-600 mb-6">You&apos;ve reviewed all available questions.</p>
@@ -107,7 +107,7 @@ export function StudySession({ onExit }: StudySessionProps) {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
       <div className="flex-1 overflow-y-auto min-h-0 max-w-4xl mx-auto w-full p-6">
         <QuestionRenderer question={currentQuestion} showExplanation={showExplanation} />
 
