@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dashboard } from './Dashboard';
 import { HistoryView } from './HistoryView';
 import { SettingsView } from './SettingsView';

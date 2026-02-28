@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useProgressStore } from '../hooks/useProgressStore';
 import { SetupOverlay, SetupConfig } from './SetupOverlay';
 

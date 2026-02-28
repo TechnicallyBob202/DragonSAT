@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { QuestionRenderer } from './QuestionRenderer';
 import { OptionGroup } from './OptionGroup';
 import { ControlBar } from './ControlBar';

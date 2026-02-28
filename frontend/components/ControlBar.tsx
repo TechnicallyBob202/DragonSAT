@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+
 import { formatTimeRemaining, isTimeWarning, isTimeExpired } from '../utils/timing';
 
 interface ControlBarProps {

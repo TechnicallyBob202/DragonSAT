@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+
 import { getScoreGrade, getScoreFeedback } from '../utils/scoring';
 
 interface ResultsDisplayProps {

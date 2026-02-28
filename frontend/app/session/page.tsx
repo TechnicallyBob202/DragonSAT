@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAssessmentStore } from '@/hooks/useAssessmentStore';
 import { useProgressStore } from '@/hooks/useProgressStore';
 import { getOrCreateUser, startSession, endSession, getQuestions } from '@/utils/api';
