@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --base-font-size: 16px;
+}
+
+html {
+  font-size: var(--base-font-size);
+}
+
+body {
+  color: #111827; /* gray-900 — light mode baseline */
+}
+
+/* KaTeX styling */
+.katex-display {
+  @apply my-4;
+}
+
+.katex {
+  @apply font-serif;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-blue-500 text-white rounded-2xl font-bold shadow-md hover:bg-blue-600 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-colors;
+  }
+
+  .btn-disabled {
+    @apply px-6 py-3 bg-gray-200 text-gray-400 rounded-2xl font-bold cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6;
+  }
+
+  .card-hover {
+    @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 hover:border-blue-200 dark:hover:border-blue-700 transition-colors cursor-pointer;
+  }
+}
+
+/* ── Dark mode overrides ────────────────────────────────────────────────────── */
+html.dark .btn-secondary {
+  background-color: #374151; /* gray-700 */
+  color: #d1d5db; /* gray-300 */
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #4b5563; /* gray-600 */
+}
+
+html.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+html.dark .option-button {
+  border-color: #4b5563;
+  color: #f1f5f9;
+}
+
+html.dark .option-button.selected {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+}
+
+html.dark .option-button.correct {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+}
+
+html.dark .option-button.incorrect {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+/* Markdown styling */
+.markdown h1 {
+  @apply text-2xl font-bold mb-4;
+}
+
+.markdown h2 {
+  @apply text-xl font-semibold mb-3;
+}
+
+.markdown p {
+  @apply mb-2 leading-relaxed;
+}
+
+.markdown ul,
+.markdown ol {
+  @apply mb-4 ml-6;
+}
+
+.markdown li {
+  @apply mb-1;
+}
+
+/* Timer styling */
+.timer {
+  @apply text-2xl font-mono font-bold;
+}
+
+.timer.warning {
+  @apply text-red-600;
+}
+
+.timer.expired {
+  @apply text-red-700 animate-pulse;
+}
+
+/* Option group styling */
+.option-button {
+  @apply w-full text-left p-4 border-2 rounded-lg transition-all hover:border-blue-500;
+}
+
+.option-button.selected {
+  @apply border-blue-600 bg-blue-50;
+}
+
+.option-button.correct {
+  @apply border-green-500 bg-green-50;
+}
+
+.option-button.incorrect {
+  @apply border-red-500 bg-red-50;
+}

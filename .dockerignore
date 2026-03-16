@@ -1,0 +1,35 @@
+# --- Secrets & PII (Highest Priority) ---
+**/.env
+**/.env.*
+**/secrets.json
+**/credentials.json
+*.pem
+*.key
+
+# --- Local Databases (PII Risk) ---
+# Since your Dockerfile installs sqlite, don't accidentally 
+# ship your local test data/users to DockerHub.
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Node.js & Build Artifacts ---
+**/node_modules
+**/npm-debug.log*
+**/.next
+**/dist
+**/build
+**/.cache
+
+# --- OS & IDE Junk ---
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
+
+# --- Docker & Git ---
+.git
+.github
+Dockerfile
+.dockerignore
+docker-compose*.yml
