@@ -180,8 +180,8 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* Sponsor Link */}
-      <div className="text-center mt-4 mb-8">
+      {/* Sponsor + Source Links */}
+      <div className="text-center mt-4 mb-8 space-y-1">
         <a
           href="https://github.com/sponsors/TechnicallyBob202"
           target="_blank"
@@ -191,6 +191,17 @@ export function Dashboard() {
           <span>💖</span>
           <span>Support DragonSAT</span>
         </a>
+        <p className="text-xs text-gray-400 dark:text-gray-500">
+          Want to self-host DragonSAT? Check out the{' '}
+          <a
+            href="https://github.com/TechnicallyBob202/DragonSAT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            project source
+          </a>.
+        </p>
       </div>
 
       {/* Setup Overlay */}
